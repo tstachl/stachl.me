@@ -19,6 +19,7 @@ instructions provided. Continue this tutorial once your system is set up.
 ### Get Jekyll  
 The best way to do that is cloning the Github repository `jekyll-bootstrap`, this will come with [twitter boostrap][bootstrap] included.
 
+{:.prettyprint .lang-sh}
         $ git clone https://github.com/plusjade/jekyll-bootstrap.git my_blog
         $ cd my_blog
 
@@ -26,6 +27,7 @@ The best way to do that is cloning the Github repository `jekyll-bootstrap`, thi
 Once your Jekyll is downloaded/cloned we can start to prepare for [Heroku][heroku]. All we need
 for our blog to run on Heroku are two files, both in the root folder of Jekyll:
 
+{:.prettyprint .lang-sh}
         my_blog/Gemfile
         my_blog/Procfile
 
@@ -34,6 +36,7 @@ for Jekyll to run on Heroku. If you need additional packages don't hesitate to a
 blog for example also uses the `twitter-text` gem to allow for nice formatted tweets on the
 homepage.
 
+{:.prettyprint .lang-ruby}
         source :rubygems
         
         gem "rake"                # actually not need for heroku but for the provided Rakefile
@@ -68,6 +71,7 @@ line 5 with this:
 To make sure everything will work smoothly navigate to the directory and run `bundle install`
 to install all the gems and then `foreman start` which will start jekyll's server.
 
+{:.prettyprint .lang-sh}
         $ cd my_blog
         $ bundle install
         $ foreman start
@@ -82,6 +86,7 @@ will create our app on Heroku (you'll also get a sweet herokuapp.com subdomain) 
 third we push our app to Heroku. Heroku'll do the rest for us as in setting up the software
 stack and the processes, compiling the app and launching it.
 
+{:.prettyprint .lang-sh}
         $ cd my_blog
         $ git commit -am "Add and commit the Procfile and the Gemfile"
         $ heroku create --stack cedar mynewblog

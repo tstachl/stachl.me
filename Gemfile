@@ -1,7 +1,7 @@
 source :rubygems
 
 gem 'rake'
-gem 'RedCloth'
+gem 'kramdown'
 gem 'rerun'
 gem "jekyll", "~> 0.11.2"
 gem 'foreman'

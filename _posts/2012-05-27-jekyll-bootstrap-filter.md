@@ -48,7 +48,8 @@ Now in this folder we have to create a new file called `boostrap.rb`. This file 
 contain all our bootstrap related plugins. Let's start off by creating a `module Bootstrap`
 that's wrapping a `module Filters` and of course the register filter method like this:
 
-        module Boostrap
+{:.prettyprint .lang-ruby}
+        module Bootstrap
           module Filters
             
           end
@@ -60,6 +61,7 @@ The first filter we want to create is a label filter so we don't have to write
 `<span class="label">My Label</span>` but instead we write `{{ '{{' }} 'My Label' | label }}`.
 To accomplish that we create a new method within the Filters module:
 
+{:.prettyprint .lang-ruby}
         def label(input)
           "<span class='label'>#{input}</span>"
         end
@@ -70,6 +72,7 @@ That's it! Save the file, start jekyll and create a new post/page using the labe
 Granted bootstrap has more than the default label, like success, important, info and so on. Now
 we could create a function for each of those:
 
+{:.prettyprint .lang-ruby}
         def label_success(input)
           "<span class='label label-success'>#{input}</span>"
         end
@@ -78,6 +81,7 @@ But that's going to become annoying real soon. So let ruby create those methods 
 know you'll need `[:success, :warning, :important, :info, :reverse]` these additional functions
 so we create a `define_method` function and auto create the methods we need.
 
+{:.prettyprint .lang-ruby}
         [:success, :warning, :important, :info, :reverse].each do |arg|
           send :define_method, ("label_#{arg.to_s}").to_sym do |input|
             label(input)
@@ -92,6 +96,7 @@ That'll work for filters like `{{ '{{' }} 'My Label' | label_success }}` now but
 show up as default label because we never changed the inital label method to add another class
 to the list. To do that we'll have to alter the label method:
 
+{:.prettyprint .lang-ruby}
         def label(input, subcls = '')
           "<span class='label'>#{input}</span>" unless subcls.empty?
           "<span class='label label-#{subcls}'>#{input}</span>"
@@ -100,6 +105,7 @@ to the list. To do that we'll have to alter the label method:
 If you test the code again it should still work but you won't see any changes, every label will
 still render the default label. So let's amend our `define_method` function ...
 
+{:.prettyprint .lang-ruby}
         [:success, :warning, :important, :info, :reverse].each do |arg|
           send :define_method, ("label_#{arg.to_s}").to_sym do |input|
             label(input, arg.to_s)
@@ -111,6 +117,7 @@ a problem.
 
 Here is the complete file again:
 
+{:.prettyprint .lang-ruby}
         module Bootstrap
           module Filters
             def label(input, subcls = '')

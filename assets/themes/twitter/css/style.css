@@ -27,6 +27,11 @@ body {
   padding: 20px;
 }
 
+.hero-unit h1,
+.page-header h1 {
+  margin-bottom: 18px;
+}
+
 .thumbnail {
   background: white;
 }
