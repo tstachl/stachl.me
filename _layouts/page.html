@@ -2,4 +2,10 @@
 layout: default
 ---
 {% include JB/setup %}
-{% include themes/twitter/page.html %}
+<div class="page-header well">
+  <h1>{{ page.header or page.title }}{% if page.description %} <small>{{ page.description }}</small>{% endif %}</h1>
+</div>
+
+<section class="row-fluid">
+  {{ content }}
+</section>

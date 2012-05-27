@@ -2,4 +2,40 @@
 layout: default
 ---
 {% include JB/setup %}
-{% include themes/twitter/post.html %}
+<div class="page-header well">
+  <h1>{{ page.title }}{% if page.description %} <small>{{ page.description }}</small>{% endif %}</h1>
+  <small>
+    {% for tag in page.tags %}
+    <span class="label">{{ tag }}</span>
+    {% endfor %}
+  </small>
+</div>
+
+<div class="row-fluid">
+  <div class="span12">
+    {{ content }}
+    <hr>
+    <ul class="pager">
+      <li class="previous">
+      {% if page.previous %}
+        <a class="btn" href="{{ BASE_PATH }}{{ page.previous.url }}" title="{{ page.previous.title }}">&larr; Previous</a>
+      {% else %}
+        <a class="btn disabled">&larr; Previous</a>
+      {% endif %}
+      </li>
+      <li class="archive">
+        <a class="btn" href="{{ BASE_PATH }}{{ site.JB.archive_path }}">Archive</a>
+      </li>
+      <li class="next">
+      {% if page.next %}
+        <a class="btn" href="{{ BASE_PATH }}{{ page.next.url }}" title="{{ page.next.title }}">Next &rarr;</a>
+      {% else %}
+        <a class="btn disabled">Next &rarr;</a>
+      {% endif %}
+      </li>
+    </ul>
+    <hr>
+    {% include JB/comments %}
+  </div>
+</div>
+
