@@ -1,7 +1,14 @@
-require "rubygems"
+require 'rubygems'
+require 'uri'
 require 'rake'
 require 'yaml'
 require 'time'
+require 'resque'
+require './jobs'
+require 'resque/tasks'
+
+url = URI.parse ENV['REDISTOGO_URL']
+Resque.redis = Redis.new(:host => url.host, :port => url.port, :password => url.password)
 
 SOURCE = "."
 CONFIG = {
@@ -39,6 +46,23 @@ module JB
   
   end #Path
 end #JB
+
+desc 'resque setup'
+task 'resque:setup' do
+  ENV['QUEUE'] = '*'
+end
+
+desc 'Remove existing _site directory'
+task :clean do
+  system 'rm -r _site'
+end
+
+desc 'Build site using Jekyll'
+task :build do
+  system 'jekyll'
+end
+
+task :rebuild => [:clean, :build]
 
 # Usage: rake post title="A Title" [date="2012-02-09"]
 desc "Begin a new post in #{CONFIG['posts']}"

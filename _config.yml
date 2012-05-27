@@ -2,9 +2,9 @@
 # For more see: https://github.com/mojombo/jekyll/wiki/Permalinks
 permalink: /blog/:year/:month/:day/:title.html
 
-exclude: [".rvmrc", ".rbenv-version", ".gitignore", ".redcar", "README.md", "Rakefile", "changelog.md", "Gemfile", "Gemfile.lock", "Procfile", "vendor"]
-auto: true
-pygments: true
+exclude: ["jobs.rb", ".env", "clock.rb", ".rvmrc", ".rbenv-version", ".gitignore", ".redcar", "README.md", "Rakefile", "changelog.md", "Gemfile", "Gemfile.lock", "Procfile", "vendor"]
+auto: false
+pygments: false
 markdown: kramdown
 
 # Themes are encouraged to use these universal variables 
