@@ -1,70 +1,104 @@
----
-theme:
-  name: twitter
----
 {% include JB/setup %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>{{ page.title }} - {{ site.title }}</title>
-    {% if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
-    <meta name="author" content="{{ site.author.name }}">
-    
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    
-    <link href="{{ ASSET_PATH }}/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ ASSET_PATH }}/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-    <link href="{{ ASSET_PATH }}/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
-    <link href="{{ ASSET_PATH }}/bootstrap/css/prettify.css" rel="stylesheet">
-    
-    <!-- Update these with your own images
-    <link rel="shortcut icon" href="images/favicon.ico">
-    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
-    -->
-  </head>
+<head>
+  <meta charset="utf-8">
+  <title>{{ page.title }} - {{ site.title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
+  <meta name="author" content="{{ site.author.name }}">
+  
+  <link href="/assets/css/bootstrap.css" rel="stylesheet">
+  <link href="/assets/css/bootstrap-responsive.css" rel="stylesheet">
+  <link href="/assets/css/main.css" rel="stylesheet">
+  
+  <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  
+  <link rel="shortcut icon" href="/assets/img/favicon.ico">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/img/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/img/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/img/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="/assets/img/apple-touch-icon-57-precomposed.png">
+  
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title }} - feed" href="/index.xml" />
+  
+  <script type="text/javascript" async="" src="http://www.google-analytics.com/ga.js"></script>
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-xxxxxx-xx']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+</head>
 
-  <body>
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="{{ HOME_PATH }}">{{ site.title }}</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              {% assign pages_list = site.pages %}
-              {% assign group = 'navigation' %}
-              {% include JB/pages_list %}
-            </ul>
-          </div>
+<body>
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container-fluid">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="{{ HOME_PATH }}">
+          <img src="/assets/img/apple-touch-icon-57-precomposed.png" id="logo">
+          {{ site.title }}
+        </a>
+        <div class="nav-collapse collapse">
+          <ul class="nav">
+            {% assign pages_list = site.pages %}
+            {% assign group = 'navigation' %}
+            {% include JB/pages_list %}
+          </ul>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="container-fluid">
-      {{ content }}
-      
-      <footer class="footer">
-        <p class="pull-right"><a href="#">Back to top</a></p>
-        <p>&copy; {{ site.author.name }} 2012 
-          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
-          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
-        </p>
-      </footer>
-    </div> <!-- /container -->
-
-    {% include JB/analytics %}
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="{{ ASSET_PATH }}/bootstrap/js/prettify.js"></script>
-    <script src="{{ ASSET_PATH }}/bootstrap/js/bootstrap.min.js"></script>
-    <script src="{{ ASSET_PATH }}/javascript/application.js"></script>
-  </body>
+  <div class="container">
+    <div class="row">
+      <div class="span9">
+        {{ content }}
+      </div>
+      <div class="span3">
+        <div class="thumbnail">
+          <img src="/assets/img/thomas.jpg" alt="Picture of Thomas Stachl">
+          <h5>Thomas Stachl in Los Angeles (2010)</h5>
+        </div>
+        <h3>Short About</h3>
+        <p>As a self-taught web developer and script artist Thomas is currently working for <a href="http://www.salesforce.com/">Salesforce.com</a> in Dublin, Ireland.</p>
+        <p>His position allows him to play around on <a href="http://www.heroku.com/">Heroku</a> and the <a href="http://www.force.com/">Force.com</a> platform where he creates mobile and web applications which are mostly customer focused and assist the global sales organization.</p>
+        <p>He also travels globally to speak and teach the cloud.</p>
+        <div id="tweets" class="visible-desktop">
+          <h3>Twitter</h3>
+          <div></div>
+        </div>
+        <div id="github" class="visible-desktop">
+          <h3>OpenSource on Github</h3>
+          <div></div>
+        </div>
+      </div>
+    </div>
+    
+    <footer class="footer">
+      <p class="pull-right"><a href="#">Back to top</a></p>
+      <p>&copy; {{ site.author.name }} 2012 
+         with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+         and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+      </p>
+    </footer>
+  </div>
+  
+  {% include JB/analytics %}
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="{{ ASSET_PATH }}/js/bootstrap.min.js"></script>
+  <script src="{{ ASSET_PATH }}/js/application.js"></script>
+</body>
 </html>

@@ -3,12 +3,6 @@ require 'uri'
 require 'rake'
 require 'yaml'
 require 'time'
-require 'resque'
-require './jobs'
-require 'resque/tasks'
-
-url = URI.parse ENV['REDISTOGO_URL']
-Resque.redis = Redis.new(:host => url.host, :port => url.port, :password => url.password)
 
 SOURCE = "."
 CONFIG = {
@@ -47,22 +41,48 @@ module JB
   end #Path
 end #JB
 
-desc 'resque setup'
-task 'resque:setup' do
-  ENV['QUEUE'] = '*'
+desc "Watch the src folder and concat and minify sources through sprockets"
+task :watch, :src_folder, :dist_folder do |t, args|
+  require 'fssm'
+  require 'yui/compressor'
+  require 'sprockets'
+  
+  srcFolder = args.src_folder.nil? ? "./lib/javascripts" : args.src_folder
+  distFolder = args.dist_folder.nil? ? "./public/javascripts" : args.dist_folder
+  
+  puts ">>> Watching #{srcFolder} for changes <<<"
+  FSSM.monitor(srcFolder, '**/*.js') do
+    update do |base, relative|
+      srcFile = File.join(base, relative)
+      distFile = File.join(base.gsub(srcFolder, distFolder), relative)
+      distPath = File.dirname(distFile)
+      
+      puts ">>> Change Detected to: #{srcFolder}/#{relative}"
+      
+      FileUtils.mkdir_p distPath
+      # minifiedFile = "#{distFolder}/#{relative}-min.js"
+      
+      env = Sprockets::Environment.new
+      File.open(distFile, 'w') do |file|
+        file.write env[srcFile].to_s
+      end
+      
+      
+      
+      
+      # secretary = Sprockets::Secretary.new(YAML.load_file(confFilepath))
+      # concatenation = secretary.concatenation
+      # gluedFiles = concatenation.to_s
+      # concatenation.save_to(concatFile)
+      # # File.open(minifiedFile, 'w') { |file| file.write(JSMin.minify(gluedFiles)) }
+      # compressor = YUI::JavaScriptCompressor.new(:munge => true)
+      # File.open(minifiedFile, 'w') { |file| file.write(compressor.compress(gluedFiles)) }
+      puts "#{distFile} updated."
+    end
+  end
 end
 
-desc 'Remove existing _site directory'
-task :clean do
-  system 'rm -r _site'
-end
 
-desc 'Build site using Jekyll'
-task :build do
-  system 'jekyll'
-end
-
-task :rebuild => [:clean, :build]
 
 # Usage: rake post title="A Title" [date="2012-02-09"]
 desc "Begin a new post in #{CONFIG['posts']}"

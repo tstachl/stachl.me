@@ -2,10 +2,10 @@
 layout: default
 ---
 {% include JB/setup %}
+{% comment%}<!--
 <div class="page-header well">
   <h1>{{ page.header or page.title }}{% if page.description %} <small>{{ page.description }}</small>{% endif %}</h1>
 </div>
+-->{% endcomment %}
 
-<section class="row-fluid">
-  {{ content }}
-</section>
+{{ content }}
