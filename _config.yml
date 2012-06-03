@@ -3,7 +3,7 @@
 permalink: /blog/:year/:month/:day/:title.html
 
 exclude: ["app.rb", ".env", ".rvmrc", ".rbenv-version", ".gitignore", ".redcar", "README.md", "Rakefile", "changelog.md", "Gemfile", "Gemfile.lock", "Procfile", "vendor"]
-auto: true
+auto: false
 pygments: false
 markdown: kramdown
 
