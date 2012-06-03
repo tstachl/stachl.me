@@ -144,6 +144,51 @@ task :preview do
   system "jekyll --auto --server"
 end # task :preview
 
+desc "Launch server"
+task :server, :port do |t, args|
+  require 'thin'
+  require 'rack'
+  require 'sinatra'
+  require 'jekyll'
+  require './app'
+  
+  options = Jekyll.configuration({})
+  
+  Thin::Server.start('0.0.0.0', args[:port] || options['server_port'] || 5000) do
+    use Rack::CommonLogger
+    use Rack::ShowExceptions
+    map "/" do
+      run Sinatra::Application
+    end
+  end
+  
+  # # Run the server on the specified port, if required
+  # if options['server']
+  #   require 'webrick'
+  #   include WEBrick
+  # 
+  #   FileUtils.mkdir_p(destination)
+  # 
+  #   mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
+  #   mime_types.store 'js', 'application/javascript'
+  #   if options['default-mimetype']
+  #     mime_types.store(nil, options['default-mimetype'])
+  #   end
+  # 
+  #   s = HTTPServer.new(
+  #     :Port            => options['server_port'],
+  #     :MimeTypes       => mime_types
+  #   )
+  #   s.mount(options['baseurl'], HTTPServlet::FileHandler, destination)
+  #   t = Thread.new {
+  #     s.start
+  #   }
+  # 
+  #   trap("INT") { s.shutdown }
+  #   t.join()
+  # end
+end
+
 # Public: Alias - Maintains backwards compatability for theme switching.
 task :switch_theme => "theme:switch"
 
