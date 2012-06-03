@@ -46,6 +46,11 @@ p {
   text-align: center;
 }
 
+div.fb-comments.fb_iframe_widget,
+div.fb-comments.fb_iframe_widget span,
+div.fb-comments.fb_iframe_widget span iframe {
+  width: 100% !important;
+}
 
 /* Space out sub-sections more
 -------------------------------------------------- */
