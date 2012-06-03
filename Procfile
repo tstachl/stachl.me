@@ -1,1 +1,1 @@
-web:    jekyll --server $PORT
+web:    bundle exec rake server[$PORT]
