@@ -96,10 +96,10 @@
       </p>
     </footer>
   </div>
-  
-  {% include JB/analytics %}
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script src="{{ ASSET_PATH }}/js/bootstrap.min.js"></script>
+  <script>if (typeof jQuery == 'undefined') document.write(unescape('%3Cscript src="{{ ASSET_PATH }}/js/jquery.min.js"%3E%3C/script%3E'));</script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.0.3/bootstrap.min.js"></script>
+  <script>if (typeof jQuery.fn.alert == 'undefined') document.write(unescape('%3Cscript src="{{ ASSET_PATH }}/js/bootstrap.min.js"%3E%3C/script%3E'));</script>
   <script src="{{ ASSET_PATH }}/js/application.js"></script>
 </body>
 </html>
