@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[Thomas Stachl]]></title>
+  <link href="http://stachl.me/atom.xml" rel="self"/>
+  <link href="http://stachl.me/"/>
+  <updated>2012-09-02T17:26:04+01:00</updated>
+  <id>http://stachl.me/</id>
+  <author>
+    <name><![CDATA[Thomas Stachl]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Jekyll Kramdown and PrittyPrint]]></title>
+    <link href="http://stachl.me/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html"/>
+    <updated>2012-05-27T22:26:00+01:00</updated>
+    <id>http://stachl.me/blog/2012/05/27/jekyll-kramdown-and-prittyprint</id>
+    <content type="html"><![CDATA[<p>Jekyll ships with a markdown converter called <a href="https://github.com/nex3/maruku">Maruku</a>, as you can see in the github repo it’s
+2 years since the last update on this library happend. That’s pretty much how it behaves. At
+first I tried to monkey patch it and add capabilities to add classes onto elements. That didn’t
+go over well so I tried to fetch the output before it get’s written in the file and replace
+the <code>&lt;pre&gt;</code> tags with <code>&lt;pre class="prittyprint"&gt;</code>. That worked pretty well until I wanted to
+use different languages, even though <a href="http://code.google.com/p/google-code-prettify/">Googles PrettyPrint</a> seems to come with an auto
+language lookup that didn’t work that good.</p>
+
+<p>And all I wanted was being able to add stupid class attributes on elements, is that too much to
+ask?</p>
+
+<p>No! Finally I discovered in the <a href="https://github.com/mojombo/jekyll/blob/master/lib/jekyll/converters/markdown.rb">source code</a> of jekyll that I could use another engine
+to render <a href="http://daringfireball.net/projects/markdown/">markdown</a>. Well I kind of saw it before but at this point I was desperate so I
+looked up the documentation on <a href="http://rubygems.org/gems/redcarpet">RedCarpet</a>, probably a really good engine. Well you guessed it
+there is a but coming … But RedCarpet didn’t work on the fly and needed additional monkey
+patches to work properly. So another nogo for me.</p>
+
+<h2 id="kramdown-is-coming">Kramdown is coming</h2>
+<p><a href="http://kramdown.rubyforge.org/">Kramdown</a> is another markdown render engine for Ruby and it’s supported by jekyll what a rush.
+The good thing about it is, it supports everything I need and probably way more, I installed it
+and it worked!</p>
+
+<p>Here is how …</p>
+
+<h3 id="installing-kramdown">Installing Kramdown</h3>
+<p>The first thing we want to do is revisit our <code>Gemfile</code> from the <a href="http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html">first post</a> when we
+installed Jekyll on Heroku. All we need to do is add this line:</p>
+
+<pre class="prettyprint lang-ruby linenums"><code>source :rubygems
+
+gem 'rake'
+gem 'kramdown'        # add this line to get kramdown installed
+[ ... ]
+</code></pre>
+
+<p>Now call the bundler to install kramdown:</p>
+
+<pre class="prettyprint lang-sh linenums"><code>$ cd my_blog
+$ bundle package &amp;&amp; bundle install
+</code></pre>
+
+<p>Next we need to make sure kramdown is used by jekyll to render markdown, this is done by setting
+kramdown as markdown engine within the <code>_config.yml</code> file.</p>
+
+<pre class="prettyprint lang-sh linenums"><code>[ ... ]
+auto: true
+pygments: true
+markdown: kramdown    # add this line make jekyll use kramdown
+[ ... ]
+</code></pre>
+
+<p>That’s basically it. All you have to do now is read up on the <a href="http://kramdown.rubyforge.org/documentation.html">documentation</a> and you are all
+set to use the highlighter. No wait, first of all I didn’t tell you how to add Google PrettyPrint
+and then you might also want to know what you have to write in your .md documents to add the
+class needed by Google PrettyPrint.</p>
+
+<h3 id="installing-google-prettyprint">Installing Google PrettyPrint</h3>
+<p>Regarding the js and css file for PrettyPrint, I have no idea what to tell you - I pretty much
+stole them directly from the <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a> documentation page:</p>
+
+<pre class="prettyprint linenums"><code>&lt;head&gt;
+  &lt;link href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css" rel="stylesheet"&gt;
+  &lt;script src="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    // make sure jQuery is loaded before you run this function,
+    // probably a good idea to create an application.js loaded
+    // as last js file
+    $(function() {
+      // make code pritty
+      window.prettyPrint &amp;&amp; prettyPrint();
+    });
+  &lt;/script&gt;
+&lt;/head&gt;
+</code></pre>
+
+<p>My suggestion, download those files and store them in your assets folder. In your
+<code>_layouts/default.html</code> you’d simply link them with <code>{{ ASSET_PATH }}</code> to where ever you
+put them.</p>
+
+<p>Now to the fun part, adding <code>prettyprint lang-html linenums</code> to your code snippets in markdown,
+ahhm kramdown:</p>
+
+<pre class="prettyprint linenums lang-ruby"><code>{:.prettyprint .linenums .lang-ruby}
+    def hello_world(name)
+      "Hello #{name}!"
+    end
+</code></pre>
+
+<p>You are all set! If you need more information or help or if you simply love this post or you have
+critisism just leave a comment in the section below.</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Jekyll Bootstrap Filters]]></title>
+    <link href="http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter.html"/>
+    <updated>2012-05-27T22:26:00+01:00</updated>
+    <id>http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter</id>
+    <content type="html"><![CDATA[<p>The blog engine <a href="http://jekyllbootstrap.com/">Jekyll</a> runs with the templating engine <a href="http://liquidmarkup.org/">Liquid</a>, an extraction from the
+e-commerce system <a href="http://shopify.com/">Shopify</a>. It has been in production since 2006 and was initially
+developed for Ruby on Rails web applications.</p>
+
+<p>Liquid offers a lot of built in functionality but sometimes you want customized methods to fit
+your needs. The extendability with filters, tags, generators and converters comes in handy in
+these situations. Now this post won’t cover all of those but the former we’ll tackle today.</p>
+
+<h2 id="liquid-filters">Liquid Filters</h2>
+<p>Filters are basically methods that change input in customized way and the most important aspect
+on filters is, that you can apply as many filters as you want on a variable. Here is an example:</p>
+
+<pre><code>Hello {{ user.name | linkify: user.website }}
+Hello {{ user.name | append: '*' | prepend: '*' | textilize | upcase }}
+</code></pre>
+
+<p>28 - that’s the number of filters that are delivered to your door with Liquid, some of them more
+useful than others (<code>{{ 10 | divided_by: 2 }} #=&gt; 5</code>) but for the most part nothing
+missing. Sure there are some cases, like using Bootstrap, in which you could use some more
+filters but that’s what we are here for, right?</p>
+
+<p>So let’s get started then …</p>
+
+<h2 id="creating-bootstraprb">Creating bootstrap.rb</h2>
+<p>First we have to locate or create the plugin folder within the jekyll installation folder:</p>
+
+<pre><code>$ cd ~/my_jekyll_blog
+$ ls -l
+total 144
+-rw-r--r--   1 tstachl  454177323     34 May 26 22:47 404.html
+[ ... ]
+drwxr-xr-x   3 tstachl  454177323    102 May 26 22:47 _plugins
+[ ... ]
+</code></pre>
+
+<p>As you can see mine already exists but if yours doesn’t simply create one with the following
+command:</p>
+
+<pre><code>$ mkdir _plugins
+</code></pre>
+
+<p>Now in this folder we have to create a new file called <code>boostrap.rb</code>. This file is going to
+contain all our bootstrap related plugins. Let’s start off by creating a <code>module Bootstrap</code>
+that’s wrapping a <code>module Filters</code> and of course the register filter method like this:</p>
+
+<pre class="prettyprint lang-ruby"><code>module Bootstrap
+  module Filters
+    
+  end
+end
+
+Liquid::Template.register_filter(Bootstrap::Filters)
+</code></pre>
+
+<p>The first filter we want to create is a label filter so we don’t have to write
+<code>&lt;span class="label"&gt;My Label&lt;/span&gt;</code> but instead we write <code>{{ 'My Label' | label }}</code>.
+To accomplish that we create a new method within the Filters module:</p>
+
+<pre class="prettyprint lang-ruby"><code>def label(input)
+  "&lt;span class='label'&gt;#{input}&lt;/span&gt;"
+end
+</code></pre>
+
+<p>That’s it! Save the file, start jekyll and create a new post/page using the label filter.</p>
+
+<h2 id="want-more">Want more?</h2>
+<p>Granted bootstrap has more than the default label, like success, important, info and so on. Now
+we could create a function for each of those:</p>
+
+<pre class="prettyprint lang-ruby"><code>def label_success(input)
+  "&lt;span class='label label-success'&gt;#{input}&lt;/span&gt;"
+end
+</code></pre>
+
+<p>But that’s going to become annoying real soon. So let ruby create those methods for you, you
+know you’ll need <code>[:success, :warning, :important, :info, :reverse]</code> these additional functions
+so we create a <code>define_method</code> function and auto create the methods we need.</p>
+
+<pre class="prettyprint lang-ruby"><code>[:success, :warning, :important, :info, :reverse].each do |arg|
+  send :define_method, ("label_#{arg.to_s}").to_sym do |input|
+    label(input)
+  end
+end
+</code></pre>
+
+<p>As you can see we created an array with the 5 label sub categories and each of those itself is
+defining a method, prepending <code>label_</code> onto the method name and calling the previously created
+<code>label</code> method.</p>
+
+<p>That’ll work for filters like <code>{{ 'My Label' | label_success }}</code> now but it’ll still
+show up as default label because we never changed the inital label method to add another class
+to the list. To do that we’ll have to alter the label method:</p>
+
+<pre class="prettyprint lang-ruby"><code>def label(input, subcls = '')
+  "&lt;span class='label'&gt;#{input}&lt;/span&gt;" unless subcls.empty?
+  "&lt;span class='label label-#{subcls}'&gt;#{input}&lt;/span&gt;"
+end
+</code></pre>
+
+<p>If you test the code again it should still work but you won’t see any changes, every label will
+still render the default label. So let’s amend our <code>define_method</code> function …</p>
+
+<pre class="prettyprint lang-ruby"><code>[:success, :warning, :important, :info, :reverse].each do |arg|
+  send :define_method, ("label_#{arg.to_s}").to_sym do |input|
+    label(input, arg.to_s)
+  end
+end
+</code></pre>
+
+<p>This little change is all it takes and now we can render all 5 sub categories of label without
+a problem.</p>
+
+<p>Here is the complete file again:</p>
+
+<pre class="prettyprint lang-ruby"><code>module Bootstrap
+  module Filters
+    def label(input, subcls = '')
+      "&lt;span class='label'&gt;#{input}&lt;/span&gt;" unless subcls.empty?
+      "&lt;span class='label label-#{subcls}'&gt;#{input}&lt;/span&gt;"
+    end
+    
+    [:success, :warning, :important, :info, :reverse].each do |arg|
+      send :define_method, ("label_#{arg.to_s}").to_sym do |input|
+        label(input, arg.to_s)
+      end
+    end
+  end
+end
+
+Liquid::Template.register_filter(Bootstrap::Filters)
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Jekyll on Heroku]]></title>
+    <link href="http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html"/>
+    <updated>2012-05-26T22:26:00+01:00</updated>
+    <id>http://stachl.me/blog/2012/05/26/jekyll-on-heroku</id>
+    <content type="html"><![CDATA[<p>Before you start with this tutorial please make sure you have all prerequisites set up. 
+<span class="label label-important">Important:</span> Make sure you have a working Ruby and the Gem Bundler
+installed. The easiest way to do that is by installing the <a href="https://rvm.io/">Ruby Version Manager</a> by 
+following this <a href="https://rvm.io/rvm/install/">Quick Install Guide</a>. Next you also want to make sure you have the Heroku
+Toolbelt installed. If you don’t check out the <a href="https://toolbelt.herokuapp.com/">Toolbelt</a> website and follow the
+instructions provided. Continue this tutorial once your system is set up.</p>
+
+<h2 id="setting-up-jekyll">Setting up Jekyll</h2>
+
+<h3 id="get-jekyll">Get Jekyll</h3>
+<p>The best way to do that is cloning the Github repository <code>jekyll-bootstrap</code>, this will come with <a href="http://twitter.github.com/bootstrap/">twitter boostrap</a> included.</p>
+
+<pre class="prettyprint lang-sh"><code>$ git clone https://github.com/plusjade/jekyll-bootstrap.git my_blog
+$ cd my_blog
+</code></pre>
+
+<h3 id="prepare-jekyll-for-heroku">Prepare Jekyll for Heroku</h3>
+<p>Once your Jekyll is downloaded/cloned we can start to prepare for <a href="http://www.heroku.com/">Heroku</a>. All we need
+for our blog to run on Heroku are two files, both in the root folder of Jekyll:</p>
+
+<pre class="prettyprint lang-sh"><code>my_blog/Gemfile
+my_blog/Procfile
+</code></pre>
+
+<p>The first one (Gemfile) is a file for the Ruby Bundler where we define all required ruby gems
+for Jekyll to run on Heroku. If you need additional packages don’t hesitate to add them, this
+blog for example also uses the <code>twitter-text</code> gem to allow for nice formatted tweets on the
+homepage.</p>
+
+<pre class="prettyprint lang-ruby"><code>source :rubygems
+
+gem "rake"                # actually not need for heroku but for the provided Rakefile
+gem "RedCloth"            # if you want to use the Textile Markup Language
+gem "jekyll", "~&gt; 0.11.2" # we need at least this version so jekyll will use Ruby 1.9.2
+gem "foreman"             # this is a tool to test and use the Procfile locally
+gem "heroku"              # if you install the Heroku Toolbelt you won't need this but it's good practice
+</code></pre>
+
+<p>Now for an app to work on Heroku we need to define a Procfile. This file simply holds all
+information regarding processes that Heroku will have to start for an app. Using a Procfile
+and the <code>cedar</code> stack on Heroku is good for two things, one you can define any process to run
+and second you have total control over your processes. Not only does this allow you to run Ruby
+apps but you can run Scala, Python, Node.js and much more.</p>
+
+<p>So if you ever get bored with Ruby (granted probably won’t happen), so if you ever want to
+broaden your horizon and take a sip of <a href="http://nodejs.org">Node</a>, than you simply create another app on Heroku and
+it’ll run.</p>
+
+<p>The Procfile is an easy oneliner …</p>
+
+<pre><code>web: jekyll --server $PORT
+</code></pre>
+
+<p>We declare one web process with the command <code>jekyll --server</code> which will generate the posts
+and run jekyll’s built in server. The <code>$PORT</code> allows Heroku to assign a dynamic port for the
+load balancing and routing, <span class="label label-">note</span> this has no influence locally. And that’s
+it. Well almost it - we also need to go into <code>_config.yml</code> and add those new files to the
+exclude list so Jekyll won’t mistake those as blog pages. Just replace the exiting list on
+line 5 with this:</p>
+
+<pre><code>exclude: [".rvmrc", ".rbenv-version", ".gitignore", "README.md", "Rakefile", "changelog.md", "Gemfile", "Gemfile.lock", "Procfile", "vendor"]
+</code></pre>
+
+<p>To make sure everything will work smoothly navigate to the directory and run <code>bundle install</code>
+to install all the gems and then <code>foreman start</code> which will start jekyll’s server.</p>
+
+<pre class="prettyprint lang-sh"><code>$ cd my_blog
+$ bundle install
+$ foreman start
+</code></pre>
+
+<p>Once jekyll is started navigate to <a href="http://localhost:4000/">http://localhost:4000/</a> and you should see
+the »Hello World« of your blog.</p>
+
+<h2 id="on-to-heroku">On to Heroku</h2>
+<p>The Heroku bit of this blog post is equally as easy and consists of three commands. The first
+will make sure that both newly created files are added to our git repository, the second
+will create our app on Heroku (you’ll also get a sweet herokuapp.com subdomain) and with the
+third we push our app to Heroku. Heroku’ll do the rest for us as in setting up the software
+stack and the processes, compiling the app and launching it.</p>
+
+<pre class="prettyprint lang-sh"><code>$ cd my_blog
+$ git commit -am "Add and commit the Procfile and the Gemfile"
+$ heroku create --stack cedar mynewblog
+$ git push heroku master        
+Counting objects: 689, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (313/313), done.
+Writing objects: 100% (689/689), 227.46 KiB | 96 KiB/s, done.
+Total 689 (delta 342), reused 672 (delta 338)
+
+-----&gt; Heroku receiving push
+-----&gt; Ruby app detected
+-----&gt; Installing dependencies using Bundler version 1.2.0.pre
+       Running: bundle install --without development:test --path vendor/bundle --binstubs bin/ --deployment
+       Fetching gem metadata from http://rubygems.org/.......
+       Installing rake (0.9.2.2)
+       [ ... ]
+       Using bundler (1.2.0.pre)
+       Your bundle is complete! It was installed into ./vendor/bundle
+       Cleaning up the bundler cache.
+-----&gt; Discovering process types
+       Procfile declares types -&gt; web
+       Default types for Ruby  -&gt; console, rake
+-----&gt; Compiled slug size is 5.1MB
+-----&gt; Launching... done, v3
+       http://mynewblog.herokuapp.com deployed to Heroku
+
+To git@heroku.com:mynewblog.git
+ * [new branch]      master -&gt; master
+</code></pre>
+
+<p>Now the second will only work if your <code>my_blog</code> directory is already a git repository otherwise
+I would suggest you initialize a git repository <code>$ git init</code> before creating the Heroku app. The
+toolbelt will recognize a git repository and automatically add the new remote to push it to
+Heroku.</p>
+
+<p>That’s it your blog should now be live and accessable on <a href="http://mynewblog.herokuapp.com/">http://mynewblog.herokuapp.com/</a>.
+All that’s left to say is <strong>»Happy Blogging«</strong> and if something is unclear or you love
+this tutorial leave a comment.</p>
+
+]]></content>
+  </entry>
+  
+</feed>

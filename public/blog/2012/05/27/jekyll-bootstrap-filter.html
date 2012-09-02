@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Jekyll Bootstrap Filters - Thomas Stachl</title>
+  <meta name="author" content="Thomas Stachl">
+
+  
+  <meta name="description" content="Jekyll Bootstrap Filters May 27th, 2012 jekyll how to liquid tutorial filter bootstrap twitter The blog engine Jekyll runs with the templating &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- FACEBOOK -->
+  <meta property="fb:app_id" content="372711709452837" />
+
+  
+  <link rel="canonical" href="http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter.html">
+  <link href="/images/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Thomas Stachl" type="application/atom+xml">
+  
+
+</head>
+
+<body>
+  <div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a href="/" class="brand">Thomas Stachl</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="active"><a href="/">Blog</a></li>
+          <li class=""><a href="/archives">Archives</a></li>
+          <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">Subscribe <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a>
+              </li>
+              
+            </ul>
+          </li>
+        </ul>
+        <form action="http://google.com/search" method="get" class="navbar-search pull-right">
+          <input type="hidden" name="q" value="site:stachl.me" />
+          <div class="input-prepend">
+            <span class="add-on">
+              <i class="input-placeholder icon-search"></i>
+            </span>
+            <input type="text" name="q" results="0" placeholder="Search" class="span2">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="header"></div>
+  <div class="main">
+    <div class="container">
+      <div class="row">
+  <div class="span9">
+    <ul class="nav nav-tabs header-tabs pull-right">
+      <li class='active'><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
+    </ul>
+  </div>
+</div>
+      <div class="row wrapper">
+  <div class="span9 main-left">
+    <article>
+      
+
+
+
+
+
+
+
+
+
+  
+
+
+
+<div class="heading-bar">
+  
+    <h1 class="entry-title">Jekyll Bootstrap Filters <small><time datetime="2012-05-27T22:26:00+01:00" pubdate data-updated="true">May 27<span>th</span>, 2012</time></small></h1>
+  
+  <p class="meta">
+    
+    
+    
+    <span class="label">jekyll</span>
+    
+    <span class="label">how to</span>
+    
+    <span class="label">liquid</span>
+    
+    <span class="label">tutorial</span>
+    
+    <span class="label">filter</span>
+    
+    <span class="label">bootstrap</span>
+    
+    <span class="label">twitter</span>
+    
+  </p>
+</div>
+  
+
+<div class="padded"><p>The blog engine <a href="http://jekyllbootstrap.com/">Jekyll</a> runs with the templating engine <a href="http://liquidmarkup.org/">Liquid</a>, an extraction from the
+e-commerce system <a href="http://shopify.com/">Shopify</a>. It has been in production since 2006 and was initially
+developed for Ruby on Rails web applications.</p>
+
+<p>Liquid offers a lot of built in functionality but sometimes you want customized methods to fit
+your needs. The extendability with filters, tags, generators and converters comes in handy in
+these situations. Now this post won’t cover all of those but the former we’ll tackle today.</p>
+
+<h2 id="liquid-filters">Liquid Filters</h2>
+<p>Filters are basically methods that change input in customized way and the most important aspect
+on filters is, that you can apply as many filters as you want on a variable. Here is an example:</p>
+
+<pre><code>Hello {{ user.name | linkify: user.website }}
+Hello {{ user.name | append: '*' | prepend: '*' | textilize | upcase }}
+</code></pre>
+
+<p>28 - that’s the number of filters that are delivered to your door with Liquid, some of them more
+useful than others (<code>{{ 10 | divided_by: 2 }} #=&gt; 5</code>) but for the most part nothing
+missing. Sure there are some cases, like using Bootstrap, in which you could use some more
+filters but that’s what we are here for, right?</p>
+
+<p>So let’s get started then …</p>
+
+<h2 id="creating-bootstraprb">Creating bootstrap.rb</h2>
+<p>First we have to locate or create the plugin folder within the jekyll installation folder:</p>
+
+<pre><code>$ cd ~/my_jekyll_blog
+$ ls -l
+total 144
+-rw-r--r--   1 tstachl  454177323     34 May 26 22:47 404.html
+[ ... ]
+drwxr-xr-x   3 tstachl  454177323    102 May 26 22:47 _plugins
+[ ... ]
+</code></pre>
+
+<p>As you can see mine already exists but if yours doesn’t simply create one with the following
+command:</p>
+
+<pre><code>$ mkdir _plugins
+</code></pre>
+
+<p>Now in this folder we have to create a new file called <code>boostrap.rb</code>. This file is going to
+contain all our bootstrap related plugins. Let’s start off by creating a <code>module Bootstrap</code>
+that’s wrapping a <code>module Filters</code> and of course the register filter method like this:</p>
+
+<pre class="prettyprint lang-ruby"><code>module Bootstrap
+  module Filters
+    
+  end
+end
+
+Liquid::Template.register_filter(Bootstrap::Filters)
+</code></pre>
+
+<p>The first filter we want to create is a label filter so we don’t have to write
+<code>&lt;span class="label"&gt;My Label&lt;/span&gt;</code> but instead we write <code>{{ 'My Label' | label }}</code>.
+To accomplish that we create a new method within the Filters module:</p>
+
+<pre class="prettyprint lang-ruby"><code>def label(input)
+  "&lt;span class='label'&gt;#{input}&lt;/span&gt;"
+end
+</code></pre>
+
+<p>That’s it! Save the file, start jekyll and create a new post/page using the label filter.</p>
+
+<h2 id="want-more">Want more?</h2>
+<p>Granted bootstrap has more than the default label, like success, important, info and so on. Now
+we could create a function for each of those:</p>
+
+<pre class="prettyprint lang-ruby"><code>def label_success(input)
+  "&lt;span class='label label-success'&gt;#{input}&lt;/span&gt;"
+end
+</code></pre>
+
+<p>But that’s going to become annoying real soon. So let ruby create those methods for you, you
+know you’ll need <code>[:success, :warning, :important, :info, :reverse]</code> these additional functions
+so we create a <code>define_method</code> function and auto create the methods we need.</p>
+
+<pre class="prettyprint lang-ruby"><code>[:success, :warning, :important, :info, :reverse].each do |arg|
+  send :define_method, ("label_#{arg.to_s}").to_sym do |input|
+    label(input)
+  end
+end
+</code></pre>
+
+<p>As you can see we created an array with the 5 label sub categories and each of those itself is
+defining a method, prepending <code>label_</code> onto the method name and calling the previously created
+<code>label</code> method.</p>
+
+<p>That’ll work for filters like <code>{{ 'My Label' | label_success }}</code> now but it’ll still
+show up as default label because we never changed the inital label method to add another class
+to the list. To do that we’ll have to alter the label method:</p>
+
+<pre class="prettyprint lang-ruby"><code>def label(input, subcls = '')
+  "&lt;span class='label'&gt;#{input}&lt;/span&gt;" unless subcls.empty?
+  "&lt;span class='label label-#{subcls}'&gt;#{input}&lt;/span&gt;"
+end
+</code></pre>
+
+<p>If you test the code again it should still work but you won’t see any changes, every label will
+still render the default label. So let’s amend our <code>define_method</code> function …</p>
+
+<pre class="prettyprint lang-ruby"><code>[:success, :warning, :important, :info, :reverse].each do |arg|
+  send :define_method, ("label_#{arg.to_s}").to_sym do |input|
+    label(input, arg.to_s)
+  end
+end
+</code></pre>
+
+<p>This little change is all it takes and now we can render all 5 sub categories of label without
+a problem.</p>
+
+<p>Here is the complete file again:</p>
+
+<pre class="prettyprint lang-ruby"><code>module Bootstrap
+  module Filters
+    def label(input, subcls = '')
+      "&lt;span class='label'&gt;#{input}&lt;/span&gt;" unless subcls.empty?
+      "&lt;span class='label label-#{subcls}'&gt;#{input}&lt;/span&gt;"
+    end
+    
+    [:success, :warning, :important, :info, :reverse].each do |arg|
+      send :define_method, ("label_#{arg.to_s}").to_sym do |input|
+        label(input, arg.to_s)
+      end
+    end
+  end
+end
+
+Liquid::Template.register_filter(Bootstrap::Filters)
+</code></pre>
+
+</div>
+
+      <footer class="padded">
+        <p class="meta">
+          
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Thomas Stachl</span></span>
+
+          
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-27T22:26:00+01:00" pubdate data-updated="true">May 27<span>th</span>, 2012</time>
+        </p>
+        
+          <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter.html" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  <div class="fb-like" data-send="true" data-width="450" data-show-faces="true"></div>
+  
+</div>
+
+        
+        <ul class="pager">
+        
+          <li class="previous">
+            <a href="/blog/2012/05/26/jekyll-on-heroku.html" title="Previous Post: Jekyll on Heroku">
+              &laquo; Jekyll on Heroku
+            </a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html" title="Next Post: Jekyll Kramdown and PrittyPrint">
+              Jekyll Kramdown and PrittyPrint &raquo;
+            </a>
+          </li>
+        
+        </ul>
+      </footer>
+      
+        <section class="padded">
+          <h1>Leave a Comment</h1>
+          <div class="fb-comments" data-href="http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter.html" data-num-posts="5" data-colorscheme="light"></div>
+        </section>
+      
+    </article>
+  </div>
+  <aside class="span3 sidebar-right" id="sidebar">
+  
+    <section>
+  <header class="heading-bar">
+    <h5>About Thomas</h5>
+  </header>
+  <p><img src="/images/thomas.jpg" class="img-polaroid"></p>
+  <p>As a self-taught web developer and script-artist Thomas is currently working for Salesforce.com in Dublin, Ireland.</p>
+  <p>His position allows him to play around on Heroku and the Force.com platform creating mobile and web applications mostly customer focused and assisting the global sales organization.</p>
+  <p>He also travels the world to speak and teach the cloud.</p>
+</section><section>
+  <header class="heading-bar">
+    <h5>Recent Posts</h5>
+  </header>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html">Jekyll Kramdown and PrittyPrint</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/27/jekyll-bootstrap-filter.html">Jekyll Bootstrap Filters</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/26/jekyll-on-heroku.html">Jekyll on Heroku</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <header class="heading-bar">
+    <h5>GitHub Repos</h5>
+  </header>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="https://github.com/tstachl" class="btn btn-info btn-block">
+    <i class="icon-bookmark icon-white"></i>
+    @tstachl on GitHub
+  </a>
+</section>
+
+
+<section>
+  <header class="heading-bar">
+    <h5>Latest Tweets</h5>
+  </header>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="http://twitter.com/thomasstachl" class="btn btn-success btn-block">
+    <i class="icon-plus-sign icon-white"></i>
+    Follow @thomasstachl
+  </a>
+</section>
+
+
+
+
+
+  
+  </aside>
+</div>
+
+      <div class="row footer">
+  <div class="span6 left">
+    Copyright &copy; 2012 - Thomas Stachl
+  </div>
+  <div class="span6 right">
+    <span class="credit pull-right">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </div>
+</div>
+    </div>
+  </div>
+  <script src="/javascripts/jquery.js"></script>
+<script src="/javascripts/pretty.js"></script>
+<script src="/javascripts/bootstrap-transition.js"></script>
+<script src="/javascripts/bootstrap-alert.js"></script>
+<script src="/javascripts/bootstrap-modal.js"></script>
+<script src="/javascripts/bootstrap-dropdown.js"></script>
+<script src="/javascripts/bootstrap-scrollspy.js"></script>
+<script src="/javascripts/bootstrap-tab.js"></script>
+<script src="/javascripts/bootstrap-tooltip.js"></script>
+<script src="/javascripts/bootstrap-popover.js"></script>
+<script src="/javascripts/bootstrap-button.js"></script>
+<script src="/javascripts/bootstrap-collapse.js"></script>
+<script src="/javascripts/bootstrap-carousel.js"></script>
+<script src="/javascripts/bootstrap-typeahead.js"></script>
+<script src="/javascripts/bootstrap-affix.js"></script>
+<script src="/javascripts/app.js"></script>
+<script>
+  new Application({
+    twitter: {
+      user: 'thomasstachl',
+      count: 4,
+      replies: false,
+      target: '#tweets',
+      sharing: true
+    },
+    github: {
+      user: 'tstachl',
+      count: 4,
+      skip_forks: true,
+      target: '#gh_repos'
+    },
+    google: {
+      sharing: true
+    },
+    facebook: {
+      sharing: true,
+      app_id: '372711709452837'
+    }
+  })
+</script>
+
+
+
+
+</body>
+</html>

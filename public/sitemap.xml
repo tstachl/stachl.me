@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
+    <url>
+        <loc>http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html</loc>
+        <lastmod>2012-09-02T17:13:12+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter.html</loc>
+        <lastmod>2012-09-02T17:12:58+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://stachl.me/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html</loc>
+        <lastmod>2012-09-02T17:13:11+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://stachl.me/archives/</loc>
+        <lastmod>2012-09-02T17:13:12+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://stachl.me/</loc>
+        <lastmod>2012-09-02T17:13:12+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://stachl.me/javascripts/app.js</loc>
+        <lastmod>2012-09-02T16:49:21+01:00</lastmod>
+    </url>
+</urlset>

@@ -1,0 +1,41 @@
+<script src="{{ root_url }}/javascripts/jquery.js"></script>
+<script src="{{ root_url }}/javascripts/pretty.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-transition.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-alert.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-modal.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-dropdown.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-scrollspy.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-tab.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-tooltip.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-popover.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-button.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-collapse.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-carousel.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-typeahead.js"></script>
+<script src="{{ root_url }}/javascripts/bootstrap-affix.js"></script>
+<script src="{{ root_url }}/javascripts/app.js"></script>
+<script>
+  new Application({
+    twitter: {
+      user: '{{site.twitter_user}}',
+      count: {{site.twitter_tweet_count}},
+      replies: {{site.twitter_show_replies}},
+      target: '#tweets',
+      sharing: {% if site.twitter_follow_button or site.twitter_tweet_button %}true{% else %}false{% endif %}
+    },
+    github: {
+      user: '{{site.github_user}}',
+      count: {{site.github_repo_count}},
+      skip_forks: {{site.github_skip_forks}},
+      target: '#gh_repos'
+    },
+    google: {
+      sharing: {% if site.google_plus_one %}true{% else %}false{% endif %}
+    },
+    facebook: {
+      sharing: {% if site.facebook_like %}true{% else %}false{% endif %},
+      app_id: '{{site.facebook_app_id}}'
+    }
+  })
+</script>
+{% include disqus.html %}

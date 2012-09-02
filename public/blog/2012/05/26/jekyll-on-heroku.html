@@ -1,0 +1,418 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Jekyll on Heroku - Thomas Stachl</title>
+  <meta name="author" content="Thomas Stachl">
+
+  
+  <meta name="description" content="Jekyll on Heroku May 26th, 2012 jekyll heroku how to tutorial setup install app Before you start with this tutorial please make sure you have all &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- FACEBOOK -->
+  <meta property="fb:app_id" content="372711709452837" />
+
+  
+  <link rel="canonical" href="http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html">
+  <link href="/images/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Thomas Stachl" type="application/atom+xml">
+  
+
+</head>
+
+<body>
+  <div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a href="/" class="brand">Thomas Stachl</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="active"><a href="/">Blog</a></li>
+          <li class=""><a href="/archives">Archives</a></li>
+          <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">Subscribe <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a>
+              </li>
+              
+            </ul>
+          </li>
+        </ul>
+        <form action="http://google.com/search" method="get" class="navbar-search pull-right">
+          <input type="hidden" name="q" value="site:stachl.me" />
+          <div class="input-prepend">
+            <span class="add-on">
+              <i class="input-placeholder icon-search"></i>
+            </span>
+            <input type="text" name="q" results="0" placeholder="Search" class="span2">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="header"></div>
+  <div class="main">
+    <div class="container">
+      <div class="row">
+  <div class="span9">
+    <ul class="nav nav-tabs header-tabs pull-right">
+      <li class='active'><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
+    </ul>
+  </div>
+</div>
+      <div class="row wrapper">
+  <div class="span9 main-left">
+    <article>
+      
+
+
+
+
+
+
+
+
+
+  
+
+
+
+<div class="heading-bar">
+  
+    <h1 class="entry-title">Jekyll on Heroku <small><time datetime="2012-05-26T22:26:00+01:00" pubdate data-updated="true">May 26<span>th</span>, 2012</time></small></h1>
+  
+  <p class="meta">
+    
+    
+    
+    <span class="label">jekyll</span>
+    
+    <span class="label">heroku</span>
+    
+    <span class="label">how to</span>
+    
+    <span class="label">tutorial</span>
+    
+    <span class="label">setup</span>
+    
+    <span class="label">install</span>
+    
+    <span class="label">app</span>
+    
+  </p>
+</div>
+  
+
+<div class="padded"><p>Before you start with this tutorial please make sure you have all prerequisites set up. 
+<span class="label label-important">Important:</span> Make sure you have a working Ruby and the Gem Bundler
+installed. The easiest way to do that is by installing the <a href="https://rvm.io/">Ruby Version Manager</a> by 
+following this <a href="https://rvm.io/rvm/install/">Quick Install Guide</a>. Next you also want to make sure you have the Heroku
+Toolbelt installed. If you don’t check out the <a href="https://toolbelt.herokuapp.com/">Toolbelt</a> website and follow the
+instructions provided. Continue this tutorial once your system is set up.</p>
+
+<h2 id="setting-up-jekyll">Setting up Jekyll</h2>
+
+<h3 id="get-jekyll">Get Jekyll</h3>
+<p>The best way to do that is cloning the Github repository <code>jekyll-bootstrap</code>, this will come with <a href="http://twitter.github.com/bootstrap/">twitter boostrap</a> included.</p>
+
+<pre class="prettyprint lang-sh"><code>$ git clone https://github.com/plusjade/jekyll-bootstrap.git my_blog
+$ cd my_blog
+</code></pre>
+
+<h3 id="prepare-jekyll-for-heroku">Prepare Jekyll for Heroku</h3>
+<p>Once your Jekyll is downloaded/cloned we can start to prepare for <a href="http://www.heroku.com/">Heroku</a>. All we need
+for our blog to run on Heroku are two files, both in the root folder of Jekyll:</p>
+
+<pre class="prettyprint lang-sh"><code>my_blog/Gemfile
+my_blog/Procfile
+</code></pre>
+
+<p>The first one (Gemfile) is a file for the Ruby Bundler where we define all required ruby gems
+for Jekyll to run on Heroku. If you need additional packages don’t hesitate to add them, this
+blog for example also uses the <code>twitter-text</code> gem to allow for nice formatted tweets on the
+homepage.</p>
+
+<pre class="prettyprint lang-ruby"><code>source :rubygems
+
+gem "rake"                # actually not need for heroku but for the provided Rakefile
+gem "RedCloth"            # if you want to use the Textile Markup Language
+gem "jekyll", "~&gt; 0.11.2" # we need at least this version so jekyll will use Ruby 1.9.2
+gem "foreman"             # this is a tool to test and use the Procfile locally
+gem "heroku"              # if you install the Heroku Toolbelt you won't need this but it's good practice
+</code></pre>
+
+<p>Now for an app to work on Heroku we need to define a Procfile. This file simply holds all
+information regarding processes that Heroku will have to start for an app. Using a Procfile
+and the <code>cedar</code> stack on Heroku is good for two things, one you can define any process to run
+and second you have total control over your processes. Not only does this allow you to run Ruby
+apps but you can run Scala, Python, Node.js and much more.</p>
+
+<p>So if you ever get bored with Ruby (granted probably won’t happen), so if you ever want to
+broaden your horizon and take a sip of <a href="http://nodejs.org">Node</a>, than you simply create another app on Heroku and
+it’ll run.</p>
+
+<p>The Procfile is an easy oneliner …</p>
+
+<pre><code>web: jekyll --server $PORT
+</code></pre>
+
+<p>We declare one web process with the command <code>jekyll --server</code> which will generate the posts
+and run jekyll’s built in server. The <code>$PORT</code> allows Heroku to assign a dynamic port for the
+load balancing and routing, <span class="label label-">note</span> this has no influence locally. And that’s
+it. Well almost it - we also need to go into <code>_config.yml</code> and add those new files to the
+exclude list so Jekyll won’t mistake those as blog pages. Just replace the exiting list on
+line 5 with this:</p>
+
+<pre><code>exclude: [".rvmrc", ".rbenv-version", ".gitignore", "README.md", "Rakefile", "changelog.md", "Gemfile", "Gemfile.lock", "Procfile", "vendor"]
+</code></pre>
+
+<p>To make sure everything will work smoothly navigate to the directory and run <code>bundle install</code>
+to install all the gems and then <code>foreman start</code> which will start jekyll’s server.</p>
+
+<pre class="prettyprint lang-sh"><code>$ cd my_blog
+$ bundle install
+$ foreman start
+</code></pre>
+
+<p>Once jekyll is started navigate to <a href="http://localhost:4000/">http://localhost:4000/</a> and you should see
+the »Hello World« of your blog.</p>
+
+<h2 id="on-to-heroku">On to Heroku</h2>
+<p>The Heroku bit of this blog post is equally as easy and consists of three commands. The first
+will make sure that both newly created files are added to our git repository, the second
+will create our app on Heroku (you’ll also get a sweet herokuapp.com subdomain) and with the
+third we push our app to Heroku. Heroku’ll do the rest for us as in setting up the software
+stack and the processes, compiling the app and launching it.</p>
+
+<pre class="prettyprint lang-sh"><code>$ cd my_blog
+$ git commit -am "Add and commit the Procfile and the Gemfile"
+$ heroku create --stack cedar mynewblog
+$ git push heroku master        
+Counting objects: 689, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (313/313), done.
+Writing objects: 100% (689/689), 227.46 KiB | 96 KiB/s, done.
+Total 689 (delta 342), reused 672 (delta 338)
+
+-----&gt; Heroku receiving push
+-----&gt; Ruby app detected
+-----&gt; Installing dependencies using Bundler version 1.2.0.pre
+       Running: bundle install --without development:test --path vendor/bundle --binstubs bin/ --deployment
+       Fetching gem metadata from http://rubygems.org/.......
+       Installing rake (0.9.2.2)
+       [ ... ]
+       Using bundler (1.2.0.pre)
+       Your bundle is complete! It was installed into ./vendor/bundle
+       Cleaning up the bundler cache.
+-----&gt; Discovering process types
+       Procfile declares types -&gt; web
+       Default types for Ruby  -&gt; console, rake
+-----&gt; Compiled slug size is 5.1MB
+-----&gt; Launching... done, v3
+       http://mynewblog.herokuapp.com deployed to Heroku
+
+To git@heroku.com:mynewblog.git
+ * [new branch]      master -&gt; master
+</code></pre>
+
+<p>Now the second will only work if your <code>my_blog</code> directory is already a git repository otherwise
+I would suggest you initialize a git repository <code>$ git init</code> before creating the Heroku app. The
+toolbelt will recognize a git repository and automatically add the new remote to push it to
+Heroku.</p>
+
+<p>That’s it your blog should now be live and accessable on <a href="http://mynewblog.herokuapp.com/">http://mynewblog.herokuapp.com/</a>.
+All that’s left to say is <strong>»Happy Blogging«</strong> and if something is unclear or you love
+this tutorial leave a comment.</p>
+
+</div>
+
+      <footer class="padded">
+        <p class="meta">
+          
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Thomas Stachl</span></span>
+
+          
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-05-26T22:26:00+01:00" pubdate data-updated="true">May 26<span>th</span>, 2012</time>
+        </p>
+        
+          <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  <div class="fb-like" data-send="true" data-width="450" data-show-faces="true"></div>
+  
+</div>
+
+        
+        <ul class="pager">
+        
+        
+          <li class="next">
+            <a href="/blog/2012/05/27/jekyll-bootstrap-filter.html" title="Next Post: Jekyll Bootstrap Filters">
+              Jekyll Bootstrap Filters &raquo;
+            </a>
+          </li>
+        
+        </ul>
+      </footer>
+      
+        <section class="padded">
+          <h1>Leave a Comment</h1>
+          <div class="fb-comments" data-href="http://stachl.me" data-num-posts="5" data-colorscheme="light"></div>
+        </section>
+      
+    </article>
+  </div>
+  <aside class="span3 sidebar-right" id="sidebar">
+  
+    <section>
+  <header class="heading-bar">
+    <h5>About Thomas</h5>
+  </header>
+  <p><img src="/images/thomas.jpg" class="img-polaroid"></p>
+  <p>As a self-taught web developer and script-artist Thomas is currently working for Salesforce.com in Dublin, Ireland.</p>
+  <p>His position allows him to play around on Heroku and the Force.com platform creating mobile and web applications mostly customer focused and assisting the global sales organization.</p>
+  <p>He also travels the world to speak and teach the cloud.</p>
+</section><section>
+  <header class="heading-bar">
+    <h5>Recent Posts</h5>
+  </header>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html">Jekyll Kramdown and PrittyPrint</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/27/jekyll-bootstrap-filter.html">Jekyll Bootstrap Filters</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/26/jekyll-on-heroku.html">Jekyll on Heroku</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <header class="heading-bar">
+    <h5>GitHub Repos</h5>
+  </header>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="https://github.com/tstachl" class="btn btn-info btn-block">
+    <i class="icon-bookmark icon-white"></i>
+    @tstachl on GitHub
+  </a>
+</section>
+
+
+<section>
+  <header class="heading-bar">
+    <h5>Latest Tweets</h5>
+  </header>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="http://twitter.com/thomasstachl" class="btn btn-success btn-block">
+    <i class="icon-plus-sign icon-white"></i>
+    Follow @thomasstachl
+  </a>
+</section>
+
+
+
+
+
+  
+  </aside>
+</div>
+
+      <div class="row footer">
+  <div class="span6 left">
+    Copyright &copy; 2012 - Thomas Stachl
+  </div>
+  <div class="span6 right">
+    <span class="credit pull-right">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </div>
+</div>
+    </div>
+  </div>
+  <script src="/javascripts/jquery.js"></script>
+<script src="/javascripts/pretty.js"></script>
+<script src="/javascripts/bootstrap-transition.js"></script>
+<script src="/javascripts/bootstrap-alert.js"></script>
+<script src="/javascripts/bootstrap-modal.js"></script>
+<script src="/javascripts/bootstrap-dropdown.js"></script>
+<script src="/javascripts/bootstrap-scrollspy.js"></script>
+<script src="/javascripts/bootstrap-tab.js"></script>
+<script src="/javascripts/bootstrap-tooltip.js"></script>
+<script src="/javascripts/bootstrap-popover.js"></script>
+<script src="/javascripts/bootstrap-button.js"></script>
+<script src="/javascripts/bootstrap-collapse.js"></script>
+<script src="/javascripts/bootstrap-carousel.js"></script>
+<script src="/javascripts/bootstrap-typeahead.js"></script>
+<script src="/javascripts/bootstrap-affix.js"></script>
+<script src="/javascripts/app.js"></script>
+<script>
+  new Application({
+    twitter: {
+      user: 'thomasstachl',
+      count: 4,
+      replies: false,
+      target: '#tweets',
+      sharing: true
+    },
+    github: {
+      user: 'tstachl',
+      count: 4,
+      skip_forks: true,
+      target: '#gh_repos'
+    },
+    google: {
+      sharing: true
+    },
+    facebook: {
+      sharing: true,
+      app_id: '372711709452837'
+    }
+  })
+</script>
+
+
+
+
+</body>
+</html>

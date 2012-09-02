@@ -1,0 +1,14 @@
+{% if site.twitter_user %}
+<section>
+  <header class="heading-bar">
+    <h5>Latest Tweets</h5>
+  </header>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="http://twitter.com/{{ site.twitter_user }}" class="btn btn-success btn-block">
+    <i class="icon-plus-sign icon-white"></i>
+    Follow @{{ site.twitter_user }}
+  </a>
+</section>
+{% endif %}

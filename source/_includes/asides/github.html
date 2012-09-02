@@ -1,0 +1,14 @@
+{% if site.github_user %}
+<section>
+  <header class="heading-bar">
+    <h5>GitHub Repos</h5>
+  </header>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="https://github.com/{{site.github_user}}" class="btn btn-info btn-block">
+    <i class="icon-bookmark icon-white"></i>
+    @{{site.github_user}} on GitHub
+  </a>
+</section>
+{% endif %}
