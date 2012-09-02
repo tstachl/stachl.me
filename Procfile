@@ -1,1 +1,1 @@
-web: jekyll --server $PORT
+web: thin start -p $PORT
