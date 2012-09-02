@@ -1,9 +1,14 @@
 source "http://rubygems.org"
 
+gem 'rake', '~> 0.9.2'
+gem 'RedCloth', '~> 4.2.9'
+gem 'jekyll', '~> 0.11.2'
+gem 'sinatra', '~> 1.3.2'
+gem 'foreman'
+gem 'heroku'
+
 group :development do
-  gem 'rake', '~> 0.9.2'
   gem 'rack', '~> 1.4.1'
-  gem 'jekyll', '~> 0.11.2'
   gem 'kramdown', '~> 0.13.8'
   gem 'pygments.rb', '~> 0.2.12'
   gem 'RedCloth', '~> 4.2.9'
@@ -15,8 +20,3 @@ group :development do
   gem 'liquid', '~> 2.3.0'
   gem 'coffee-script', '~> 2.2.0'
 end
-
-gem 'sinatra', '~> 1.3.2'
-gem 'foreman'
-gem 'heroku'
-gem 'thin'
