@@ -3,7 +3,7 @@
   <title><![CDATA[Thomas Stachl]]></title>
   <link href="http://stachl.me/atom.xml" rel="self"/>
   <link href="http://stachl.me/"/>
-  <updated>2012-09-02T17:38:34+01:00</updated>
+  <updated>2012-09-02T18:01:08+01:00</updated>
   <id>http://stachl.me/</id>
   <author>
     <name><![CDATA[Thomas Stachl]]></name>
@@ -42,7 +42,7 @@ and it worked!</p>
 <p>Here is how …</p>
 
 <h3 id="installing-kramdown">Installing Kramdown</h3>
-<p>The first thing we want to do is revisit our <code>Gemfile</code> from the <a href="http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html">first post</a> when we
+<p>The first thing we want to do is revisit our <code>Gemfile</code> from the <a href="/blog/2012/05/26/jekyll-on-heroku.html">first post</a> when we
 installed Jekyll on Heroku. All we need to do is add this line:</p>
 
 <pre class="prettyprint lang-ruby linenums"><code>source :rubygems

@@ -22,12 +22,10 @@
 #
 
 require 'pathname'
-require './plugins/octopress_filters'
 
 module Jekyll
 
   class RenderPartialTag < Liquid::Tag
-    include OctopressFilters
     def initialize(tag_name, markup, tokens)
       @file = nil
       @raw = false
