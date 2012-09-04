@@ -161,7 +161,7 @@ module Jekyll
       when 1
         categories[0].to_s
       else
-        "#{categories[0...-1].join(', ')}, #{categories[-1]}"
+        "#{categories.join('')}"
       end
     end
 

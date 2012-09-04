@@ -14,7 +14,6 @@
 #
 
 module Jekyll
-
   class VideoTag < Liquid::Tag
     @video = nil
     @poster = ''
@@ -41,7 +40,30 @@ module Jekyll
       end
     end
   end
+  
+  class VimeoTag < Liquid::Tag
+    def initialize(name, id, tokens)
+      super
+      @id = id
+    end
+
+    def render(context)
+      %(<div class="embed-video-container"><iframe src="http://player.vimeo.com/video/#{@id}?portrait=0&amp;color=ff9933"></iframe></div>)
+    end
+  end
+  
+  class YoutubeTag < Liquid::Tag
+    def initialize(name, id, tokens)
+      super
+      @id = id
+    end
+
+    def render(context)
+      %(<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/#{@id}"></iframe></div>)
+    end
+  end
 end
 
 Liquid::Template.register_tag('video', Jekyll::VideoTag)
-
+Liquid::Template.register_tag('vimeo', Jekyll::VimeoTag)
+Liquid::Template.register_tag('youtube', Jekyll::YoutubeTag)

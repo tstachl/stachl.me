@@ -1,0 +1,447 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Knockout.js for Visualforce - Thomas Stachl</title>
+  <meta name="author" content="Thomas Stachl">
+
+  
+  <meta name="description" content="
+  
+    
+      
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+    Knockout.js for Visualforce Sep 4th, 2012
+  
+  
+    
+    
+    
+    knockout.js
+    
+    salesforce
+    
+    ...">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- FACEBOOK -->
+  <meta property="fb:app_id" content="372711709452837" />
+
+  
+  <link rel="canonical" href="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html">
+  <link href="/images/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Thomas Stachl" type="application/atom+xml">
+  
+
+</head>
+
+<body>
+  <div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a href="/" class="brand">Thomas Stachl</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="active"><a href="/">Blog</a></li>
+          <li class=""><a href="/archives">Archives</a></li>
+          <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">Subscribe <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a>
+              </li>
+              
+            </ul>
+          </li>
+        </ul>
+        <form action="http://google.com/search" method="get" class="navbar-search pull-right">
+          <input type="hidden" name="q" value="site:http://stachl.me" />
+          <div class="input-prepend">
+            <span class="add-on">
+              <i class="input-placeholder icon-search"></i>
+            </span>
+            <input type="text" name="q" results="0" placeholder="Search" class="span2">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="header"></div>
+  <div class="main">
+    <div class="container">
+      <div class="row">
+  <div class="span9">
+    <ul class="nav nav-tabs header-tabs pull-right">
+      <li class='active'><a class='category' href='/categories/development/'>Development</a></li><li class=''><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
+    </ul>
+  </div>
+</div>
+      <div class="row wrapper">
+  <div class="span9 main-left">
+    <article>
+      
+
+
+
+
+
+
+
+
+
+  
+
+
+
+<div class="heading-bar">
+  
+    <h1 class="entry-title">Knockout.js for Visualforce <small><time datetime="Liquid error: undefined method `xmlschema' for "2012-09-04 12:21:00 +0100":String" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time></small></h1>
+  
+  <p class="meta">
+    
+    
+    
+    <span class="label">knockout.js</span>
+    
+    <span class="label">salesforce</span>
+    
+    <span class="label">visualforce</span>
+    
+    <span class="label">apex</span>
+    
+    <span class="label">view-binding</span>
+    
+    <span class="label">javascript</span>
+    
+    <span class="label">ajax</span>
+    
+  </p>
+</div>
+  
+
+<div class="padded"><p>Last week I saw an introduction video about <a href="http://knockoutjs.com/">Knockout.js</a> a javascript library
+that shows sweet advantages on declarative bindings, automatic UI refresh, 
+dependency tracking and templating.</p>
+
+<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/DnhGqcKEPiM "></iframe></div>
+
+<p>After watching this I realized how nice and easy you could bind data onto forms,
+tables and whole templates. Immediately I thought about Visualforce and how this
+could make it easier to create nice looking custom user interfaces utilizing either
+Apex remote action or the Javascript toolkit.</p>
+
+<p>My colleague a big <a href="http://jquery.com/">jQuery</a> fan didn’t seem to be convinced at all, so the
+challenge was set and I knew what I had to do.</p>
+
+<h2 id="the-challenge">The Challenge</h2>
+<p>For the first try run I wanted to find something simple and an editable grid showing
+accounts (Twitter handles of accounts to be more precise) seemed to be easy enough.
+The idea was to show the list of accounts with account name, a disabled checkbox to 
+indicate whether or not an account had a Twitter handle and of course the Twitter 
+handle itself which should be editable.</p>
+
+<p><img src="/images/knockoutjs_visualforce_goal.png" alt="A table with accounts, twitter account indicator and the twitter handle" title="The goal!" /></p>
+
+<h2 id="the-fun-part">The fun part</h2>
+<p>So I started out with creating a Visualforce page and a controller. The only reason 
+for the controller was to get a JSON encoded list of accounts and I thought that was
+a fast and straight forward approach, whilst the real magic is happening in the 
+Visualforce page. At least in this small example. So let’s start with the controller:</p>
+
+<pre class="prettyprint lang-java linenums"><code>public class KnockoutController
+{
+  public KnockoutController()
+  {}
+  public String getAccountsJson()
+  {
+    return JSON.serialize((List&lt;Account&gt;)[SELECT Id, Name, TwitterHandle__c FROM Account]);
+  }
+}
+</code></pre>
+
+<p>As you can see there is one getter for the account list and that’s it. The Visualforce
+page on the other hand contains 64 lines of markup and code. I think most of it is 
+self explanatory but I added a few comments just in case.</p>
+
+<pre class="prettyprint lang-html linenums"><code>&lt;apex:page controller="KnockoutController" tabStyle="Account" &gt;
+  &lt;apex:includeScript value="https://cdnjs.cloudflare.com/ajax/libs/knockout/2.1.0/knockout-min.js" /&gt;
+  &lt;apex:sectionHeader title="Knockout.js + Salesforce.com" subtitle="Like?" /&gt;
+  
+  &lt;!-- The Template --&gt;
+  &lt;table width="100%"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Account Name&lt;/th&gt;
+        &lt;th&gt;Has Twitter&lt;/th&gt;
+        &lt;th&gt;Twitter Handle&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody data-bind="foreach: accounts"&gt;
+      &lt;tr&gt;
+        &lt;td data-bind="text: name"&gt;&lt;/td&gt;
+        &lt;td&gt;
+          &lt;input type="checkbox" disabled="disabled" data-bind="checked: has_twitter" /&gt;
+        &lt;/td&gt;
+        &lt;td data-bind="event: { dblclick: toggle_edit }"&gt;
+          &lt;span data-bind="visible: !is_editing(), text: twitter"&gt;&lt;/span&gt;
+          &lt;input data-bind="visible: is_editing, value: twitter, event: { blur: toggle_edit }" /&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+
+  &lt;script&gt;
+    !function() {
+      // The Account model
+      function Account(options) {
+        this.id = options.Id || ''
+        this.name = options.Name || ''
+        this.twitter = ko.observable(options.TwitterHandle__c || '')
+        this.is_editing = ko.observable(false)
+        
+        // computed observable tells us if we have a twitter handle
+        this.has_twitter = ko.computed(function() {
+          return !!this.twitter()
+        }, this)
+
+        // the function to toggle between editing and viewing
+        this.toggle_edit = function(account) {
+          account.is_editing(!account.is_editing())
+        }
+      }
+
+      // all of the magic happens in the model
+      // the viewModel just holds the accounts array
+      view_model = {
+        accounts: ko.observableArray([])
+      }
+
+      // here we have our {!accountsJson} mapped and transformed to
+      // account objects
+      view_model.accounts(ko.utils.arrayMap({!accountsJson}, function(account) {
+        return new Account(account)
+      }))
+
+      // last but not least we need to apply all bindings
+      ko.applyBindings(view_model)
+    }()
+  &lt;/script&gt;
+&lt;/apex:page&gt;
+</code></pre>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>As you can see it’s fairly simple to create a nice observable and dynamic user interface 
+using <a href="http://knockoutjs.com/">Knockout.js</a>. Even-though my colleague would still tell me it’s faster to build
+this functionality in <a href="http://jquery.com/">jQuery</a> (and he might even be right), this weekend I’m going
+to show you why I consider Knockout.js a really good idea and how fast and straight forward
+you can create a nice and clean Salesforce Ideas clone.</p>
+
+</div>
+
+      <footer class="padded">
+        <p class="meta">
+          
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Thomas Stachl</span></span>
+
+          
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="Liquid error: undefined method `xmlschema' for "2012-09-04 12:21:00 +0100":String" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
+        </p>
+        
+          <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  <div class="fb-like" data-send="true" data-width="450" data-show-faces="true"></div>
+  
+</div>
+
+        
+        <ul class="pager">
+        
+          <li class="previous">
+            <a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html" title="Previous Post: Jekyll Kramdown and PrittyPrint">
+              &laquo; Jekyll Kramdown and PrittyPrint
+            </a>
+          </li>
+        
+        
+        </ul>
+      </footer>
+      
+        <section class="padded">
+          <h1>Leave a Comment</h1>
+          <div class="fb-comments" data-href="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html" data-num-posts="5" data-colorscheme="light"></div>
+        </section>
+      
+    </article>
+  </div>
+  <aside class="span3 sidebar-right" id="sidebar">
+  
+    <section>
+  <header class="heading-bar">
+    <h5>About Thomas</h5>
+  </header>
+  <p><img src="/images/thomas.jpg" class="img-polaroid"></p>
+  <p>As a self-taught web developer and script-artist Thomas is currently working for Salesforce.com in Dublin, Ireland.</p>
+  <p>His position allows him to play around on Heroku and the Force.com platform creating mobile and web applications mostly customer focused and assisting the global sales organization.</p>
+  <p>He also travels the world to speak and teach the cloud.</p>
+</section><section>
+  <header class="heading-bar">
+    <h5>Recent Posts</h5>
+  </header>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/09/04/knockout-dot-js-for-visualforce.html">Knockout.js for Visualforce</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html">Jekyll Kramdown and PrittyPrint</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/27/jekyll-bootstrap-filter.html">Jekyll Bootstrap Filters</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/05/26/jekyll-on-heroku.html">Jekyll on Heroku</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <header class="heading-bar">
+    <h5>GitHub Repos</h5>
+  </header>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="https://github.com/tstachl" class="btn btn-info btn-block">
+    <i class="icon-bookmark icon-white"></i>
+    @tstachl on GitHub
+  </a>
+</section>
+
+
+<section>
+  <header class="heading-bar">
+    <h5>Latest Tweets</h5>
+  </header>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <a href="http://twitter.com/thomasstachl" class="btn btn-success btn-block">
+    <i class="icon-plus-sign icon-white"></i>
+    Follow @thomasstachl
+  </a>
+</section>
+
+
+
+
+
+  
+  </aside>
+</div>
+
+      <div class="row footer">
+  <div class="span6 left">
+    Copyright &copy; 2012 - Thomas Stachl
+  </div>
+  <div class="span6 right">
+    <span class="credit pull-right">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </div>
+</div>
+    </div>
+  </div>
+  <script src="/javascripts/jquery.js"></script>
+<script src="/javascripts/pretty.js"></script>
+<script src="/javascripts/bootstrap-transition.js"></script>
+<script src="/javascripts/bootstrap-alert.js"></script>
+<script src="/javascripts/bootstrap-modal.js"></script>
+<script src="/javascripts/bootstrap-dropdown.js"></script>
+<script src="/javascripts/bootstrap-scrollspy.js"></script>
+<script src="/javascripts/bootstrap-tab.js"></script>
+<script src="/javascripts/bootstrap-tooltip.js"></script>
+<script src="/javascripts/bootstrap-popover.js"></script>
+<script src="/javascripts/bootstrap-button.js"></script>
+<script src="/javascripts/bootstrap-collapse.js"></script>
+<script src="/javascripts/bootstrap-carousel.js"></script>
+<script src="/javascripts/bootstrap-typeahead.js"></script>
+<script src="/javascripts/bootstrap-affix.js"></script>
+<script src="/javascripts/app.js"></script>
+<script>
+  new Application({
+    twitter: {
+      user: 'thomasstachl',
+      count: 4,
+      replies: false,
+      target: '#tweets',
+      sharing: true
+    },
+    github: {
+      user: 'tstachl',
+      count: 4,
+      skip_forks: true,
+      target: '#gh_repos'
+    },
+    google: {
+      sharing: true
+    },
+    facebook: {
+      sharing: true,
+      app_id: '372711709452837'
+    }
+  })
+</script>
+
+
+
+
+</body>
+</html>

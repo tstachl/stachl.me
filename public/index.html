@@ -29,16 +29,16 @@
 
 
   
-    Jekyll Kramdown and PrittyPrint May 27th, 2012
+    Knockout.js for Visualforce Sep 4th, 2012
   
   
     
     
     
-    jekyll
+    knockout.js
     
-    kramdown
-  ...">
+    salesforce
+...">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -101,7 +101,7 @@
       <div class="row">
   <div class="span9">
     <ul class="nav nav-tabs header-tabs pull-right">
-      <li class=''><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
+      <li class=''><a class='category' href='/categories/development/'>Development</a></li><li class=''><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
     </ul>
   </div>
 </div>
@@ -126,6 +126,171 @@
 
 
 <div class="heading-bar">
+  
+    <h1 class="entry-title"><a href="/blog/2012/09/04/knockout-dot-js-for-visualforce.html">Knockout.js for Visualforce</a> <small><time datetime="Liquid error: undefined method `xmlschema' for "2012-09-04 12:21:00 +0100":String" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time></small></h1>
+  
+  <p class="meta">
+    
+    
+    
+    <span class="label">knockout.js</span>
+    
+    <span class="label">salesforce</span>
+    
+    <span class="label">visualforce</span>
+    
+    <span class="label">apex</span>
+    
+    <span class="label">view-binding</span>
+    
+    <span class="label">javascript</span>
+    
+    <span class="label">ajax</span>
+    
+  </p>
+</div>
+  
+
+<div class="padded"><p>Last week I saw an introduction video about <a href="http://knockoutjs.com/">Knockout.js</a> a javascript library
+that shows sweet advantages on declarative bindings, automatic UI refresh, 
+dependency tracking and templating.</p>
+
+<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/DnhGqcKEPiM "></iframe></div>
+
+<p>After watching this I realized how nice and easy you could bind data onto forms,
+tables and whole templates. Immediately I thought about Visualforce and how this
+could make it easier to create nice looking custom user interfaces utilizing either
+Apex remote action or the Javascript toolkit.</p>
+
+<p>My colleague a big <a href="http://jquery.com/">jQuery</a> fan didn’t seem to be convinced at all, so the
+challenge was set and I knew what I had to do.</p>
+
+<h2 id="the-challenge">The Challenge</h2>
+<p>For the first try run I wanted to find something simple and an editable grid showing
+accounts (Twitter handles of accounts to be more precise) seemed to be easy enough.
+The idea was to show the list of accounts with account name, a disabled checkbox to 
+indicate whether or not an account had a Twitter handle and of course the Twitter 
+handle itself which should be editable.</p>
+
+<p><img src="/images/knockoutjs_visualforce_goal.png" alt="A table with accounts, twitter account indicator and the twitter handle" title="The goal!" /></p>
+
+<h2 id="the-fun-part">The fun part</h2>
+<p>So I started out with creating a Visualforce page and a controller. The only reason 
+for the controller was to get a JSON encoded list of accounts and I thought that was
+a fast and straight forward approach, whilst the real magic is happening in the 
+Visualforce page. At least in this small example. So let’s start with the controller:</p>
+
+<pre class="prettyprint lang-java linenums"><code>public class KnockoutController
+{
+  public KnockoutController()
+  {}
+  public String getAccountsJson()
+  {
+    return JSON.serialize((List&lt;Account&gt;)[SELECT Id, Name, TwitterHandle__c FROM Account]);
+  }
+}
+</code></pre>
+
+<p>As you can see there is one getter for the account list and that’s it. The Visualforce
+page on the other hand contains 64 lines of markup and code. I think most of it is 
+self explanatory but I added a few comments just in case.</p>
+
+<pre class="prettyprint lang-html linenums"><code>&lt;apex:page controller="KnockoutController" tabStyle="Account" &gt;
+  &lt;apex:includeScript value="https://cdnjs.cloudflare.com/ajax/libs/knockout/2.1.0/knockout-min.js" /&gt;
+  &lt;apex:sectionHeader title="Knockout.js + Salesforce.com" subtitle="Like?" /&gt;
+  
+  &lt;!-- The Template --&gt;
+  &lt;table width="100%"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Account Name&lt;/th&gt;
+        &lt;th&gt;Has Twitter&lt;/th&gt;
+        &lt;th&gt;Twitter Handle&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody data-bind="foreach: accounts"&gt;
+      &lt;tr&gt;
+        &lt;td data-bind="text: name"&gt;&lt;/td&gt;
+        &lt;td&gt;
+          &lt;input type="checkbox" disabled="disabled" data-bind="checked: has_twitter" /&gt;
+        &lt;/td&gt;
+        &lt;td data-bind="event: { dblclick: toggle_edit }"&gt;
+          &lt;span data-bind="visible: !is_editing(), text: twitter"&gt;&lt;/span&gt;
+          &lt;input data-bind="visible: is_editing, value: twitter, event: { blur: toggle_edit }" /&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+
+  &lt;script&gt;
+    !function() {
+      // The Account model
+      function Account(options) {
+        this.id = options.Id || ''
+        this.name = options.Name || ''
+        this.twitter = ko.observable(options.TwitterHandle__c || '')
+        this.is_editing = ko.observable(false)
+        
+        // computed observable tells us if we have a twitter handle
+        this.has_twitter = ko.computed(function() {
+          return !!this.twitter()
+        }, this)
+
+        // the function to toggle between editing and viewing
+        this.toggle_edit = function(account) {
+          account.is_editing(!account.is_editing())
+        }
+      }
+
+      // all of the magic happens in the model
+      // the viewModel just holds the accounts array
+      view_model = {
+        accounts: ko.observableArray([])
+      }
+
+      // here we have our {!accountsJson} mapped and transformed to
+      // account objects
+      view_model.accounts(ko.utils.arrayMap({!accountsJson}, function(account) {
+        return new Account(account)
+      }))
+
+      // last but not least we need to apply all bindings
+      ko.applyBindings(view_model)
+    }()
+  &lt;/script&gt;
+&lt;/apex:page&gt;
+</code></pre>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>As you can see it’s fairly simple to create a nice observable and dynamic user interface 
+using <a href="http://knockoutjs.com/">Knockout.js</a>. Even-though my colleague would still tell me it’s faster to build
+this functionality in <a href="http://jquery.com/">jQuery</a> (and he might even be right), this weekend I’m going
+to show you why I consider Knockout.js a really good idea and how fast and straight forward
+you can create a nice and clean Salesforce Ideas clone.</p>
+
+</div>
+  
+  
+
+    </article>
+  
+  
+    <article>
+      
+
+
+
+
+
+
+
+
+
+  
+
+
+
+<div class="heading-bar bordered">
   
     <h1 class="entry-title"><a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html">Jekyll Kramdown and PrittyPrint</a> <small><time datetime="Liquid error: undefined method `xmlschema' for "2012-05-27 22:26:00 +0100":String" pubdate data-updated="true">May 27<span>th</span>, 2012</time></small></h1>
   
@@ -621,6 +786,10 @@ this tutorial leave a comment.</p>
     <h5>Recent Posts</h5>
   </header>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/09/04/knockout-dot-js-for-visualforce.html">Knockout.js for Visualforce</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html">Jekyll Kramdown and PrittyPrint</a>
