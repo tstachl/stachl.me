@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Knockout.js for Visualforce - Thomas Stachl</title>
+  <title>Another turning point - Thomas Stachl</title>
   <meta name="author" content="Thomas Stachl">
 
   
@@ -26,17 +26,17 @@
 
 
   
-    Knockout.js for Visualforce Sep 4th, 2012
+    Another turning point Sep 4th, 2012
   
   
     
     
     
-    knockout.js
-    
-    salesforce
-    
-    ...">
+  
+
+  
+
+Eventually everyone has to decide whether t...">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -48,7 +48,7 @@
   <meta property="fb:app_id" content="372711709452837" />
 
   
-  <link rel="canonical" href="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html">
+  <link rel="canonical" href="http://stachl.me/blog/2012/09/04/another-turning-point.html">
   <link href="/images/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Thomas Stachl" type="application/atom+xml">
@@ -112,7 +112,7 @@
       <div class="row">
   <div class="span9">
     <ul class="nav nav-tabs header-tabs pull-right">
-      <li class='active'><a class='category' href='/categories/development/'>Development</a></li><li class=''><a class='category' href='/categories/life/'>Life</a></li><li class=''><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
+      <li class=''><a class='category' href='/categories/development/'>Development</a></li><li class='active'><a class='category' href='/categories/life/'>Life</a></li><li class=''><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
     </ul>
   </div>
 </div>
@@ -135,147 +135,77 @@
 
 <div class="heading-bar">
   
-    <h1 class="entry-title">Knockout.js for Visualforce <small><time datetime="Liquid error: undefined method `xmlschema' for "2012-09-04 12:21:00 +0100":String" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time></small></h1>
+    <h1 class="entry-title">Another turning point <small><time datetime="Liquid error: undefined method `xmlschema' for "2012-09-04 20:44:00 +0100":String" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time></small></h1>
   
   <p class="meta">
     
     
     
-    <span class="label">knockout.js</span>
-    
-    <span class="label">salesforce</span>
-    
-    <span class="label">visualforce</span>
-    
-    <span class="label">apex</span>
-    
-    <span class="label">view-binding</span>
-    
-    <span class="label">javascript</span>
-    
-    <span class="label">ajax</span>
-    
   </p>
 </div>
   
 
-<div class="padded"><p>Last week I saw an introduction video about <a href="http://knockoutjs.com/">Knockout.js</a> a javascript library
-that shows sweet advantages on declarative bindings, automatic UI refresh, 
-dependency tracking and templating.</p>
+<div class="padded"><p>Eventually everyone has to decide whether to live his life according to a predefined course
+or to take action and pursuit a life of happiness and joy but also downfalls and hardship. 
+Are you walking the safe road or are you choosing a live of adventure and unknown? For me it
+was a very personal decision I made two years ago - I started to live my life in the pursuit
+of my dreams.</p>
 
-<div class="embed-video-container"><iframe src="http://www.youtube.com/embed/DnhGqcKEPiM "></iframe></div>
+<p>You can probably ask every person who spent time with me and they’ll all tell you that my
+dream is and was to live in the United States. But two years ago when I started this journey
+I had to make sure that it really was what I wanted for myself, so I decided to quit my job 
+and become a freelancer.</p>
 
-<p>After watching this I realized how nice and easy you could bind data onto forms,
-tables and whole templates. Immediately I thought about Visualforce and how this
-could make it easier to create nice looking custom user interfaces utilizing either
-Apex remote action or the Javascript toolkit.</p>
+<p>As a freelancer you have certain privileges, like working from wherever and whenever you want.
+You can decide to work 4 hours a day or 12 hours, it’s up to you to find a company to work for
+or projects to work on. So that was a perfect fit for my US trial run. I started to work for
+a San Francisco based company developing web services.</p>
 
-<p>My colleague a big <a href="http://jquery.com/">jQuery</a> fan didn’t seem to be convinced at all, so the
-challenge was set and I knew what I had to do.</p>
+<p>A few months in I was able to afford my first trip to Los Angeles so I bought my tickets and
+even had a few hundred dollars left on my bank account for incidentals. It was around the
+15th of June 2010 and I still remember as if it was yesterday. My mom gave me a ride to the
+airport in Munich and I took off. After a quick flight to London and a brief overlay I boarded
+a big Boing which should take me all the way over the Atlantic ocean to the Pacific.</p>
 
-<h2 id="the-challenge">The Challenge</h2>
-<p>For the first try run I wanted to find something simple and an editable grid showing
-accounts (Twitter handles of accounts to be more precise) seemed to be easy enough.
-The idea was to show the list of accounts with account name, a disabled checkbox to 
-indicate whether or not an account had a Twitter handle and of course the Twitter 
-handle itself which should be editable.</p>
+<p>It must have been around 7pm when I finally arrived and I got into the bus to Union Station
+where I was supposed to meet a guy I met on <a href="http://www.couchsurfing.org/">CouchSurfing.org</a> - 
+but he never showed. Something must have happened, I thought. While still whishing for the best
+I found myself a cab and gave the drive the address.</p>
 
-<p><img src="/images/knockoutjs_visualforce_goal.png" alt="A table with accounts, twitter account indicator and the twitter handle" title="The goal!" /></p>
+<p>Even though I had this feeling of uncertainty in my stomach I was so overwhelmed by all those
+new impressions, the smell, the dry LA heat in the evenings I didn’t even think about
+loosing faith. And as it turned out I was right, he just forgot about my arrival time so I still
+had a bed for the first few nights.</p>
 
-<h2 id="the-fun-part">The fun part</h2>
-<p>So I started out with creating a Visualforce page and a controller. The only reason 
-for the controller was to get a JSON encoded list of accounts and I thought that was
-a fast and straight forward approach, whilst the real magic is happening in the 
-Visualforce page. At least in this small example. So let’s start with the controller:</p>
+<p>Cutting a really long story short - I had the best time in Los Angeles and even after three
+months of not seeing my family and friends back home in Austria, I still wouldn’t want to leave.
+This showed me that I was on the right track. That I should reach for the stars and continue my
+quest.</p>
 
-<pre class="prettyprint lang-java linenums"><code>public class KnockoutController
-{
-  public KnockoutController()
-  {}
-  public String getAccountsJson()
-  {
-    return JSON.serialize((List&lt;Account&gt;)[SELECT Id, Name, TwitterHandle__c FROM Account]);
-  }
-}
-</code></pre>
+<p>Jumping ahead to June 2011 the 6th to be exact. Once again I found myself at the airport in
+Munich saying my goodbyes to my mother and Josef. This time it wasn’t about going to the US,
+I started a job with <a href="http://www.salesforce.com/">Salesforce.com</a> in their European headquarters 
+in Dublin, Ireland. Salesforce is also a San Francisco based company, one of the first to use the
+term cloud computing. As opposed to being a freelancer this gainful employment was always meant
+to be my stepping stone to the States.</p>
 
-<p>As you can see there is one getter for the account list and that’s it. The Visualforce
-page on the other hand contains 64 lines of markup and code. I think most of it is 
-self explanatory but I added a few comments just in case.</p>
+<p>In those almost one and a half years I found myself growing fond of Ireland, Dublin especially
+as I actually didn’t see much more than that. And with Salesforce I was even able to fly over to
+San Francisco twice, I also got the opportunity to visit London and had an extended stay with our 
+neighbors in Munich. Telling you all this and giving a slight hint to Forbes list of best companies 
+to work for should be enough to convince you that I never regret for one second haven take up this
+nine-to-five.</p>
 
-<pre class="prettyprint lang-html linenums"><code>&lt;apex:page controller="KnockoutController" tabStyle="Account" &gt;
-  &lt;apex:includeScript value="https://cdnjs.cloudflare.com/ajax/libs/knockout/2.1.0/knockout-min.js" /&gt;
-  &lt;apex:sectionHeader title="Knockout.js + Salesforce.com" subtitle="Like?" /&gt;
-  
-  &lt;!-- The Template --&gt;
-  &lt;table width="100%"&gt;
-    &lt;thead&gt;
-      &lt;tr&gt;
-        &lt;th&gt;Account Name&lt;/th&gt;
-        &lt;th&gt;Has Twitter&lt;/th&gt;
-        &lt;th&gt;Twitter Handle&lt;/th&gt;
-      &lt;/tr&gt;
-    &lt;/thead&gt;
-    &lt;tbody data-bind="foreach: accounts"&gt;
-      &lt;tr&gt;
-        &lt;td data-bind="text: name"&gt;&lt;/td&gt;
-        &lt;td&gt;
-          &lt;input type="checkbox" disabled="disabled" data-bind="checked: has_twitter" /&gt;
-        &lt;/td&gt;
-        &lt;td data-bind="event: { dblclick: toggle_edit }"&gt;
-          &lt;span data-bind="visible: !is_editing(), text: twitter"&gt;&lt;/span&gt;
-          &lt;input data-bind="visible: is_editing, value: twitter, event: { blur: toggle_edit }" /&gt;
-        &lt;/td&gt;
-      &lt;/tr&gt;
-    &lt;/tbody&gt;
-  &lt;/table&gt;
+<p>And it’s about to get even better, over the course of the last couple of months I applied for
+a position as a Technical Consultant with a 100 % subsidiary of Salesforce in San Francisco.
+Yes you read correctly, one of my dreams is about to come true and I’ll be able to live and
+work in one of the most accomplished nations of this world. I’m going to work for
+<a href="http://www.desk.com/">Desk.com</a>.</p>
 
-  &lt;script&gt;
-    !function() {
-      // The Account model
-      function Account(options) {
-        this.id = options.Id || ''
-        this.name = options.Name || ''
-        this.twitter = ko.observable(options.TwitterHandle__c || '')
-        this.is_editing = ko.observable(false)
-        
-        // computed observable tells us if we have a twitter handle
-        this.has_twitter = ko.computed(function() {
-          return !!this.twitter()
-        }, this)
-
-        // the function to toggle between editing and viewing
-        this.toggle_edit = function(account) {
-          account.is_editing(!account.is_editing())
-        }
-      }
-
-      // all of the magic happens in the model
-      // the viewModel just holds the accounts array
-      view_model = {
-        accounts: ko.observableArray([])
-      }
-
-      // here we have our {!accountsJson} mapped and transformed to
-      // account objects
-      view_model.accounts(ko.utils.arrayMap({!accountsJson}, function(account) {
-        return new Account(account)
-      }))
-
-      // last but not least we need to apply all bindings
-      ko.applyBindings(view_model)
-    }()
-  &lt;/script&gt;
-&lt;/apex:page&gt;
-</code></pre>
-
-<h2 id="conclusion">Conclusion</h2>
-<p>As you can see it’s fairly simple to create a nice observable and dynamic user interface 
-using <a href="http://knockoutjs.com/">Knockout.js</a>. Even-though my colleague would still tell me it’s faster to build
-this functionality in <a href="http://jquery.com/">jQuery</a> (and he might even be right), this weekend I’m going
-to show you why I consider Knockout.js a really good idea and how fast and straight forward
-you can create a nice and clean Salesforce Ideas clone.</p>
-
+<p>A new part of my life is starting in a few weeks and once again I’m overcome with joy and
+happiness but also the knowledge that it doesn’t end here. Dreams are coming every night
+like clockwork, I close my eyes and start imagining and everything begins again. What’s next?
+I don’t know but one thing I know for sure, it’s going to be one hell of ride.</p>
 </div>
 
       <footer class="padded">
@@ -297,12 +227,12 @@ you can create a nice and clean Salesforce Ideas clone.</p>
   
 
 
-<time datetime="Liquid error: undefined method `xmlschema' for "2012-09-04 12:21:00 +0100":String" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
+<time datetime="Liquid error: undefined method `xmlschema' for "2012-09-04 20:44:00 +0100":String" pubdate data-updated="true">Sep 4<span>th</span>, 2012</time>
         </p>
         
           <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/09/04/another-turning-point.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/09/04/another-turning-point.html" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -316,24 +246,18 @@ you can create a nice and clean Salesforce Ideas clone.</p>
         <ul class="pager">
         
           <li class="previous">
-            <a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html" title="Previous Post: Jekyll Kramdown and PrittyPrint">
-              &laquo; Jekyll Kramdown and PrittyPrint
+            <a href="/blog/2012/09/04/knockout-dot-js-for-visualforce.html" title="Previous Post: Knockout.js for Visualforce">
+              &laquo; Knockout.js for Visualforce
             </a>
           </li>
         
-        
-          <li class="next">
-            <a href="/blog/2012/09/04/another-turning-point.html" title="Next Post: Another turning point">
-              Another turning point &raquo;
-            </a>
-          </li>
         
         </ul>
       </footer>
       
         <section class="padded">
           <h1>Leave a Comment</h1>
-          <div class="fb-comments" data-href="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html" data-num-posts="5" data-colorscheme="light"></div>
+          <div class="fb-comments" data-href="http://stachl.me/blog/2012/09/04/another-turning-point.html" data-num-posts="5" data-colorscheme="light"></div>
         </section>
       
     </article>

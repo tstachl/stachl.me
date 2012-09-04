@@ -3,3 +3,9 @@
 .sass-cache
 .pygments-cache
 .cache
+source
+Rakefile
+_config.yml
+config.rb
+plugins
+sass
