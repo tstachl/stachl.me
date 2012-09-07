@@ -3,11 +3,39 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Category: Tutorial - Thomas Stachl</title>
+  <title>Salesforce Site and Facebook Page Tab - Thomas Stachl</title>
   <meta name="author" content="Thomas Stachl">
 
   
-  <meta name="description" content="Category: Tutorial">
+  <meta name="description" content="
+  
+    
+      
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+    Salesforce Site and Facebook Page Tab Sep 7th, 2012
+  
+  
+    
+    
+    
+    salesforce
+    
+    facebook
+  ...">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +47,7 @@
   <meta property="fb:app_id" content="372711709452837" />
 
   
-  <link rel="canonical" href="http://stachl.mecategories/tutorial/index.html">
+  <link rel="canonical" href="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html">
   <link href="/images/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Thomas Stachl" type="application/atom+xml">
@@ -52,7 +80,7 @@
       <a href="/" class="brand">Thomas Stachl</a>
       <div class="nav-collapse">
         <ul class="nav">
-          <li class=""><a href="/">Blog</a></li>
+          <li class="active"><a href="/">Blog</a></li>
           <li class=""><a href="/archives">Archives</a></li>
           <li class="dropdown">
             <a data-toggle="dropdown" class="dropdown-toggle" href="#">Subscribe <b class="caret"></b></a>
@@ -83,7 +111,7 @@
       <div class="row">
   <div class="span9">
     <ul class="nav nav-tabs header-tabs pull-right">
-      <li class=''><a class='category' href='/categories/development/'>Development</a></li><li class=''><a class='category' href='/categories/life/'>Life</a></li><li class='active'><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
+      <li class='active'><a class='category' href='/categories/development/'>Development</a></li><li class=''><a class='category' href='/categories/life/'>Life</a></li><li class=''><a class='category' href='/categories/tutorial/'>Tutorial</a></li>
     </ul>
   </div>
 </div>
@@ -91,68 +119,143 @@
   <div class="span9 main-left">
     <article>
       
-      <div class="heading-bar">
-        <h1 class="entry-title">Category: Tutorial</h1>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+<div class="heading-bar">
+  
+    <h1 class="entry-title">Salesforce Site and Facebook Page Tab <small><time datetime="Liquid error: undefined method `xmlschema' for "2012-09-07 12:22:00 +0100":String" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time></small></h1>
+  
+  <p class="meta">
+    
+    
+    
+    <span class="label">salesforce</span>
+    
+    <span class="label">facebook</span>
+    
+    <span class="label">page tab</span>
+    
+    <span class="label">sites</span>
+    
+    <span class="label">force.com</span>
+    
+    <span class="label">visualforce</span>
+    
+    <span class="label">authentication</span>
+    
+    <span class="label">login</span>
+    
+  </p>
+</div>
+  
+
+<div class="padded"><p>Every once in a while in my job I get asked to develop an application on the <a href="http://developer.force.com/">Force.com</a>
+Platform that can be included into a <a href="https://www.facebook.com/">Facebook</a> Page as a page tab. Now initially you’d
+think not a problem at all we’ll just create visualforce page and put it on a site, link the
+Facebook page tab app to the visualforce page and that’s it. We’ll you’re right it would be 
+really that simple if you don’t need the Facebook user to sign in and be an authenticated 
+portal user on the site.</p>
+
+<p>But authentication can’t be to terrible since Spring ‘12 <a href="http://www.salesforce.com/">Salesforce</a> even offers the so
+called <a href="http://blogs.developerforce.com/developer-relations/2012/01/social-single-sign-on-authentication-providers-in-spring-12.html">Social Single Sign On</a> which allows you to add Facebook as an authentication
+provider in your Salesforce Organization. Still it’s not the simplest of all tasks, with all
+those redirections, X-Frame and SSL policies and what not. So after the third time I tried
+to hack my way around I thought why not come up with a flow that works always and package
+it up for reuse.</p>
+
+<p>My solution involved a redirection flow built in Javascript and packaged as a visualforce
+Component. So here is what basically happens:</p>
+
+<ul>
+  <li>John Doe finds himself on our Facebook Page</li>
+  <li>He clicks on the page tab</li>
+  <li>Depending on weather John surfs using SSL or not the page tab loads the visualforce page
+using the same protocol</li>
+  <li>Now the first thing this script does is to test if John Doe has a valid session</li>
+  <li>John Doe has never been on our visualforce page so he is redirected to the SSSO</li>
+  <li>The SSSO in turn will redirect John back to Facebook so he can authenticate and authorize
+our app</li>
+  <li>If he does he’ll then get redirected back to SSSO which will either create a new user
+or use an existing one for John</li>
+  <li>SSSO knows that the request came from a Force.com Site and redirects accordingly</li>
+  <li>At this stage the script will check if there is a return URL set and redirect there</li>
+</ul>
+
+<p>Now all you need to do is grab the code for the component on <a href="https://github.com/tstachl/fbookLoginRedirector">github.com/tstachl</a> and add it
+to your probably empty start/redirector page: <code>&lt;c:fbookLoginRedirector loginUrl="" retUrl="" /&gt;</code>
+There is an example visualforce page included and if you set this page as start page of a 
+site you should be good to go.</p>
+
+</div>
+
+      <footer class="padded">
+        <p class="meta">
+          
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Thomas Stachl</span></span>
+
+          
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="Liquid error: undefined method `xmlschema' for "2012-09-07 12:22:00 +0100":String" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
+        </p>
         
-      </div>
-      
-      <div class="padded"><div id="blog-archives" class="category">
-
-
-
+          <div class="sharing">
   
-  <h2>2012</h2>
-
-<article>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html" >Tweet</a>
   
-<h1><a href="/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html">Jekyll Kramdown and PrittyPrint</a></h1>
-<time datetime="2012-05-27T22:26:00+01:00" pubdate><span class='month'>May</span> <span class='day'>27</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tutorial/'>Tutorial</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
   
-<h1><a href="/blog/2012/05/27/jekyll-bootstrap-filter.html">Jekyll Bootstrap Filters</a></h1>
-<time datetime="2012-05-27T22:26:00+01:00" pubdate><span class='month'>May</span> <span class='day'>27</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tutorial/'>Tutorial</a></span>
-</footer>
-
-
-</article>
-
-
-
-<article>
+  <div class="g-plusone" data-size="medium"></div>
   
-<h1><a href="/blog/2012/05/26/jekyll-on-heroku.html">Jekyll on Heroku</a></h1>
-<time datetime="2012-05-26T22:26:00+01:00" pubdate><span class='month'>May</span> <span class='day'>26</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/categories/tutorial/'>Tutorial</a></span>
-</footer>
-
-
-</article>
-
+  
+  <div class="fb-like" data-send="true" data-width="450" data-show-faces="true"></div>
+  
 </div>
-</div>
+
+        
+        <ul class="pager">
+        
+          <li class="previous">
+            <a href="/blog/2012/09/04/another-turning-point.html" title="Previous Post: Another turning point">
+              &laquo; Another turning point
+            </a>
+          </li>
+        
+        
+        </ul>
+      </footer>
       
+        <section class="padded">
+          <h1>Leave a Comment</h1>
+          <div class="fb-comments" data-href="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html" data-num-posts="5" data-colorscheme="light"></div>
+        </section>
       
     </article>
   </div>
+  <aside class="span3 sidebar-right" id="sidebar">
   
-  <div class="span3 sidebar-right">
-    
-      <section>
+    <section>
   <header class="heading-bar">
     <h5>About Thomas</h5>
   </header>
@@ -220,9 +323,8 @@
 
 
 
-    
-  </div>
   
+  </aside>
 </div>
 
       <div class="row footer">

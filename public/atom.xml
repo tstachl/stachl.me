@@ -3,7 +3,7 @@
   <title><![CDATA[Thomas Stachl]]></title>
   <link href="http://stachl.me/atom.xml" rel="self"/>
   <link href="http://stachl.me/"/>
-  <updated>2012-09-04T22:05:24+01:00</updated>
+  <updated>2012-09-07T13:01:18+01:00</updated>
   <id>http://stachl.me/</id>
   <author>
     <name><![CDATA[Thomas Stachl]]></name>
@@ -11,6 +11,51 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Salesforce Site and Facebook Page Tab]]></title>
+    <link href="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html"/>
+    <updated>2012-09-07T12:22:00+01:00</updated>
+    <id>http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab</id>
+    <content type="html"><![CDATA[<p>Every once in a while in my job I get asked to develop an application on the <a href="http://developer.force.com/">Force.com</a>
+Platform that can be included into a <a href="https://www.facebook.com/">Facebook</a> Page as a page tab. Now initially you’d
+think not a problem at all we’ll just create visualforce page and put it on a site, link the
+Facebook page tab app to the visualforce page and that’s it. We’ll you’re right it would be 
+really that simple if you don’t need the Facebook user to sign in and be an authenticated 
+portal user on the site.</p>
+
+<p>But authentication can’t be to terrible since Spring ‘12 <a href="http://www.salesforce.com/">Salesforce</a> even offers the so
+called <a href="http://blogs.developerforce.com/developer-relations/2012/01/social-single-sign-on-authentication-providers-in-spring-12.html">Social Single Sign On</a> which allows you to add Facebook as an authentication
+provider in your Salesforce Organization. Still it’s not the simplest of all tasks, with all
+those redirections, X-Frame and SSL policies and what not. So after the third time I tried
+to hack my way around I thought why not come up with a flow that works always and package
+it up for reuse.</p>
+
+<p>My solution involved a redirection flow built in Javascript and packaged as a visualforce
+Component. So here is what basically happens:</p>
+
+<ul>
+  <li>John Doe finds himself on our Facebook Page</li>
+  <li>He clicks on the page tab</li>
+  <li>Depending on weather John surfs using SSL or not the page tab loads the visualforce page
+using the same protocol</li>
+  <li>Now the first thing this script does is to test if John Doe has a valid session</li>
+  <li>John Doe has never been on our visualforce page so he is redirected to the SSSO</li>
+  <li>The SSSO in turn will redirect John back to Facebook so he can authenticate and authorize
+our app</li>
+  <li>If he does he’ll then get redirected back to SSSO which will either create a new user
+or use an existing one for John</li>
+  <li>SSSO knows that the request came from a Force.com Site and redirects accordingly</li>
+  <li>At this stage the script will check if there is a return URL set and redirect there</li>
+</ul>
+
+<p>Now all you need to do is grab the code for the component on <a href="https://github.com/tstachl/fbookLoginRedirector">github.com/tstachl</a> and add it
+to your probably empty start/redirector page: <code>&lt;c:fbookLoginRedirector loginUrl="" retUrl="" /&gt;</code>
+There is an example visualforce page included and if you set this page as start page of a 
+site you should be good to go.</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Another turning point]]></title>
