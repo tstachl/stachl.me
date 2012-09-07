@@ -1,11 +1,11 @@
 source "http://rubygems.org"
 
 gem 'sinatra', '~> 1.3.2'
+gem 'foreman'
+gem 'heroku'
+gem 'thin'
 
 group :development do
-  gem 'foreman'
-  gem 'heroku'
-  gem 'thin'
   gem 'rake', '~> 0.9.2'
   gem 'RedCloth', '~> 4.2.9'
   gem 'jekyll', '~> 0.11.2'
