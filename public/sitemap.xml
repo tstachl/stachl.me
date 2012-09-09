@@ -2,38 +2,38 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://stachl.me/blog/2012/05/26/jekyll-on-heroku.html</loc>
-        <lastmod>2012-09-02T17:13:12+01:00</lastmod>
+        <lastmod>2012-09-09T13:12:37+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/blog/2012/05/27/jekyll-bootstrap-filter.html</loc>
-        <lastmod>2012-09-02T17:12:58+01:00</lastmod>
+        <lastmod>2012-09-09T13:12:37+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/blog/2012/05/27/jekyll-kramdown-and-prittyprint.html</loc>
-        <lastmod>2012-09-02T17:13:11+01:00</lastmod>
+        <lastmod>2012-09-09T13:12:37+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html</loc>
-        <lastmod>2012-09-04T16:50:27+01:00</lastmod>
+        <lastmod>2012-09-09T13:12:37+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/blog/2012/09/04/another-turning-point.html</loc>
-        <lastmod>2012-09-04T22:04:18+01:00</lastmod>
+        <lastmod>2012-09-09T13:12:37+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html</loc>
-        <lastmod>2012-09-07T13:00:20+01:00</lastmod>
+        <lastmod>2012-09-09T13:12:37+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/archives/</loc>
-        <lastmod>2012-09-07T13:00:20+01:00</lastmod>
+        <lastmod>2012-09-09T13:17:07+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/</loc>
-        <lastmod>2012-09-07T13:00:20+01:00</lastmod>
+        <lastmod>2012-09-09T13:12:37+01:00</lastmod>
     </url>
     <url>
         <loc>http://stachl.me/javascripts/app.js</loc>
-        <lastmod>2012-09-02T16:49:21+01:00</lastmod>
+        <lastmod>2012-09-09T13:14:05+01:00</lastmod>
     </url>
 </urlset>

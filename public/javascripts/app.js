@@ -249,6 +249,11 @@
         new Google(options.google);
       }
       window.prettyPrint && prettyPrint();
+      $('#archive-navbar').scrollspy({
+        spy: 'scroll',
+        target: '#archive-navbar',
+        offset: 0
+      });
     }
 
     return Application;

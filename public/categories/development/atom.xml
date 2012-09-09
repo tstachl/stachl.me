@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Development | Thomas Stachl]]></title>
+  <title><![CDATA[Development | Thomas Stachl]]></title>
   <link href="http://stachl.me/categories/development/atom.xml" rel="self"/>
   <link href="http://stachl.me/"/>
-  <updated>2012-09-07T13:01:18+01:00</updated>
+  <updated>2012-09-09T13:19:02+01:00</updated>
   <id>http://stachl.me/</id>
   <author>
     <name><![CDATA[Thomas Stachl]]></name>
@@ -30,7 +30,8 @@ called <a href="http://blogs.developerforce.com/developer-relations/2012/01/soci
 provider in your Salesforce Organization. Still it’s not the simplest of all tasks, with all
 those redirections, X-Frame and SSL policies and what not. So after the third time I tried
 to hack my way around I thought why not come up with a flow that works always and package
-it up for reuse.</p>
+it up for reuse.
+<!--more--></p>
 
 <p>My solution involved a redirection flow built in Javascript and packaged as a visualforce
 Component. So here is what basically happens:</p>
@@ -72,7 +73,8 @@ dependency tracking and templating.</p>
 <p>After watching this I realized how nice and easy you could bind data onto forms,
 tables and whole templates. Immediately I thought about Visualforce and how this
 could make it easier to create nice looking custom user interfaces utilizing either
-Apex remote action or the Javascript toolkit.</p>
+Apex remote action or the Javascript toolkit.
+<!--more--></p>
 
 <p>My colleague a big <a href="http://jquery.com/">jQuery</a> fan didn’t seem to be convinced at all, so the
 challenge was set and I knew what I had to do.</p>
