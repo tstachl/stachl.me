@@ -3,7 +3,7 @@
   <title><![CDATA[Thomas Stachl]]></title>
   <link href="http://stachl.me/atom.xml" rel="self"/>
   <link href="http://stachl.me/"/>
-  <updated>2012-09-09T13:19:02+01:00</updated>
+  <updated>2012-09-10T19:21:59+01:00</updated>
   <id>http://stachl.me/</id>
   <author>
     <name><![CDATA[Thomas Stachl]]></name>
@@ -11,6 +11,537 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ideas knocked out]]></title>
+    <link href="http://stachl.me/blog/2012/09/09/ideas-knocked-out.html"/>
+    <updated>2012-09-09T13:39:00+01:00</updated>
+    <id>http://stachl.me/blog/2012/09/09/ideas-knocked-out</id>
+    <content type="html"><![CDATA[<p>As promised in my post on Sep. 4th <a href="http://stachl.me/blog/2012/09/04/knockout-dot-js-for-visualforce.html">Knockout.js for Visualforce</a> today we are revisiting
+<a href="http://knockoutjs.com/">Knockout.js</a>. The project we are going to build is an ideas portal and we will be using
+sites to publish it. This portal will have two states, the public state in which all visitors can
+view the ideas, see the points, read the comments and change the community. In the second state,
+the logged in state, users will be able to promote and demote ideas, leave comments and even add
+new ideas to the selected community.</p>
+
+<p><span class="label label-info">Information:</span> I’m not going to build out the portal completely, but this
+tutorial will show you how you could build out a portal and if you invest a few more hours you
+might have a fully functioning ideas community on Facebook.</p>
+
+<p><img src="http://stachl.me/images/ideas_knocked_out.png" alt="The finished Ideas Portal live on Facebook." title="The finished Ideas Portal live on Facebook." />
+<!--more--></p>
+
+<h2 id="the-models">The models</h2>
+<p>For this to work we will be using three SObjects - Idea, IdeaComment and Vote. So let’s start out
+in creating javascript models for those objects.</p>
+
+<pre class="prettyprint lang-js linenums"><code>function Idea(options) {
+  if (options == null) options = {};
+  var _this = this;
+  this.id = options.Id || '';
+  this.community = options.CommunityId || '';
+  this.author = options.CreatedBy &amp;&amp; options.CreatedBy.Name ? options.CreatedBy.Name : '';
+  this.created = Date.parse(options.CreatedDate) || Date.now();
+  this.title = ko.observable(options.Title || '');
+  this.body = ko.observable(options.Body || '');
+  this.votes = ko.observableArray([]);
+  this.comments = ko.observableArray([]);
+  
+  if (options.Votes &amp;&amp; options.Votes.records) {
+    ko.utils.arrayForEach(options.Votes.records, function(vote) {
+      _this.votes().push(new Vote(vote));
+    });
+  }
+  
+  if (options.Comments &amp;&amp; options.Comments.records) {
+    ko.utils.arrayForEach(options.Comments.records, function(comment) {
+      _this.comments().push(new Comment(comment));
+    });
+  }
+  
+  this.summary = ko.computed(function() {
+    var str = this.body().replace(/(&lt;([^&gt;]+)&gt;)/ig, '');
+    return str.length &lt; 300 ? str : str.substr(0, str.lastIndexOf(' ', 297)) + '...';
+  }, this)
+  
+  this.score = ko.computed(function() {
+    var score = 0;
+    ko.utils.arrayForEach(this.votes(), function(vote) {
+      vote.type === 'Up' ? score += 10 : score -= 10
+    });
+    return score;
+  }, this);
+  
+  this.can_vote = ko.computed(function() {
+    return !ko.utils.arrayFirst(this.votes(), function(vote) { return vote.author_id === user.id });
+  }, this);
+  
+  this.promote = function(idea) {
+    if (!user.logged_in) {
+      return $('#not-logged-in').modal('show');
+    }
+
+    if (idea.can_vote()) {
+      vote = new Vote({
+        ParentId: idea.id,
+        Type: 'Up',
+        CreatedById: user.id
+      });
+      idea.votes().push(vote.save());
+    }
+  };
+  
+  this.demote = function(idea) {
+    if (!user.logged_in) {
+      return $('#not-logged-in').modal('show');
+    }
+
+    if (idea.can_vote()) {
+      vote = new Vote({
+        ParentId: idea.id,
+        Type: 'Down',
+        CreatedById: user.id
+      });
+      idea.votes().push(vote.save());
+    }
+  };
+  
+  this.save = function(idea) {
+    if (!user.logged_in) {
+      return $('#not-logged-in').modal('show');
+    }
+
+    var sobj = new sforce.SObject('Idea');
+    sobj.Title = idea.title();
+    sobj.Body = idea.body();
+    sobj.CommunityId = idea.community || view_model.community;
+
+    var result = sforce.connection.create([sobj]);
+
+    sobj.Id = result[0].id;
+    sobj.CreatedBy = {
+      Name: user.fullname
+    };
+
+    idea = new Idea(sobj);
+    idea.promote(idea);
+
+    view_model.latest_ideas.unshift(idea);
+  };
+  
+  this.show = function(idea) {
+    view_model.idea(idea);
+    $('#index').hide();
+    $('#show').show();
+  };
+  
+  this.index = function() {
+    $('#show').hide();
+    $('#index').show();
+  };
+}
+</code></pre>
+
+<p>As you can see this is our biggest model, it handles a lot of stuff for us. Like for example it
+holds all our comments and votes, it can be promoted and demoted and it even changes our view.
+I know the latter should probably be in a controller but Knockout.js is a MVVM framework which
+stands for Model-View-View Model so we don’t really have controllers. But you can definitely
+come up with something if you need a controller.</p>
+
+<p>Let’s move on to our other two SObject models:</p>
+
+<pre class="prettyprint lang-js linenums"><code>function Comment(options) {
+  if (options == null) options = {};
+   this.id = options.Id || '';
+   this.author = options.CreatedBy &amp;&amp; options.CreatedBy.Name ? options.CreatedBy.Name : '';
+   this.created = Date.parse(options.CreatedDate) || Date.now();
+   this.idea_id = options.IdeaId || '';
+   this.body = ko.observable(options.CommentBody || '');
+   
+   this.save = function(comment) {
+    if (!user.logged_in) {
+      return $('#not-logged-in').modal('show');
+    }
+
+    var sobj = new sforce.SObject('IdeaComment');
+    sobj.CommentBody = comment.body();
+    sobj.IdeaId = view_model.idea().id;
+
+    var result = sforce.connection.create([sobj]);
+
+    sobj.Id = result[0].id;
+    sobj.CreatedBy = {
+      Name: user.fullname
+    };
+
+    sobj = new Comment(sobj);
+
+    view_model.idea().comments.unshift(sobj);
+    view_model.latest_comments.unshift(sobj);
+    comment.reset(comment);
+  };
+  
+  this.reset = function(comment) {
+     view_model.comment(new Comment());
+  };
+}
+</code></pre>
+
+<p>The comment model is actually pretty straight forward, we have the <code>set_options</code> method to
+setup the comment, of course a <code>save</code> method and the <code>reset</code> method which resets the comment
+on the view-model so we can create another one.</p>
+
+<p>For the last SObject the code is even simpler:</p>
+
+<pre class="prettyprint lang-js linenums"><code>function Vote(options) {
+  if (options == null) {
+    options = {};
+  }
+  this.id = options.Id || '';
+  this.idea_id = options.ParentId || '';
+  this.type = options.Type || '';
+  this.author_id = options.CreatedById || '';
+  
+  this.save = function() {
+    var result, sobj;
+    sobj = new sforce.SObject('Vote');
+    sobj.ParentId = this.idea_id;
+    sobj.Type = this.type;
+    result = sforce.connection.create([sobj]);
+    return this.id = result[0].id;
+  };
+}
+</code></pre>
+
+<h2 id="the-view-model">The View-Model</h2>
+<p>After creating all those models we need a View-Model, that’s basically a model which contains all
+our template bindings. It’ll also manage general stuff like authentication, hold the user information
+and show the new idea modal and coordinate the <a href="https://www.facebook.com/">Facebook</a> integration.</p>
+
+<pre class="prettyprint lang-js linenums"><code>view_model = {
+  popular_ideas: ko.observableArray([]),
+  latest_ideas: ko.observableArray([]),
+  latest_comments: ko.observableArray([]),
+  idea: ko.observable({}),
+  comment: ko.observable({}),
+  community: '{!community_id}',
+  facebook: {
+    appId: 'YourFacebookAppId',
+    status: true,
+    cookie: true
+  },
+  setup_facebook: function() {
+    FB.init(view_model.facebook);
+
+    if (window.self != window.top) {
+      $('html, body').css('overflow', 'hidden');
+      FB.Canvas.setAutoGrow();
+    } else {
+      location.replace('https://www.facebook.com/pages/Stachl-Testing-Page/159957404030861?sk=app_241179819338794');
+    }
+
+    FB.getLoginStatus(function(rsp) {
+      if (rsp.status == 'connected') {
+        user.facebook = {
+          logged_in: true,
+          uid: rsp.authResponse.userID,
+          access_token: rsp.authResponse.accessToken
+        };
+      }
+    });
+  },
+  login: function() {
+    if (typeof fbookLoginRedirector == 'function') {
+      fbookLoginRedirector();
+    }
+  },
+  add_to_page: function() {
+    FB.ui({
+      method: 'pagetab',
+      redirect_url: location.href
+    });
+  },
+  new_idea: function() {
+    if (!user.logged_in) {
+      return $('#not-logged-in').modal('show');
+    }
+
+    view_model.idea(new Idea({
+      CommunityId: view_model.community
+    }));
+
+    $('#new-idea').modal('show');
+  }
+};
+
+// after setting the view_model up we also need to add some data and initialize the bindings
+view_model.idea(new Idea());
+view_model.comment(new Comment());
+// fetches popular ideas and maps them to our ideas
+view_model.popular_ideas(ko.utils.arrayMap({!popularIdeas}, function(idea) {
+  return new Idea(idea);
+}));
+// same goes for latest ideas
+view_model.latest_ideas(ko.utils.arrayMap({!latestIdeas}, function(idea) {
+  return new Idea(idea);
+}));
+// and latest comments
+view_model.latest_comments(ko.utils.arrayMap({!latestComments}, function(comment) {
+  return new Comment(comment);
+}));
+
+// initializing facebook
+view_model.setup_facebook();
+
+// and apply bindings
+ko.applyBindings(view_model);
+</code></pre>
+
+<h2 id="general-stuff">General stuff</h2>
+<p>As we are using the <a href="http://www.salesforce.com/us/developer/docs/ajax/index.htm">Salesforce Javascript Toolkit</a> for authenticated interactions between
+Salesforce and the user we’ll need to set the session id. Besides the sessionId for the ajax toolkit
+we also use the variable user a lot, so here is the code for both:</p>
+
+<pre class="prettyprint lang-js linenums"><code>sforce.connection.sessionId = '{!GETSESSIONID()}'
+
+user = {
+  // visualforce function to check if we are logged in or not
+  logged_in: {!IF(NOT(CONTAINS($User.LastName, 'Site Guest User')), 'true', 'false')},
+  // get the current users id
+  id: '{!$User.Id}',
+  // and of course the name
+  fullname: '{!$User.FirstName} {!$User.LastName}',
+  // if we want to use facebook interactions we'll also need the facebook authentication
+  facebook: {
+    logged_in: false,
+    uid: null,
+    access_token: null
+  }
+};
+</code></pre>
+
+<p>One last thing I almost forgot, we will be working with a date string in the view. Now Knockoutjs
+doesn’t support date bindings out of the box so we need to write an addition to it:</p>
+
+<pre class="prettyprint lang-js linenums"><code>ko.bindingHandlers.dateString = {
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var value = valueAccessor()
+    var allBindings = allBindingsAccessor()
+
+    var valueUnwrapped = ko.utils.unwrapObservable(value)
+    var pattern = allBindings.datePattern || 'dd.MM.yyyy'
+    $(element).text(valueUnwrapped.toString(pattern))
+  }
+};
+</code></pre>
+
+<p>That’s for the javascript part of the application. As you can see we are also using a few apex
+variables. That’s basically to allow guests (guest’s can’t use the API) and have some initial
+data to display as soon as the page gets loaded. The apex part is very small compared to the
+javascript part …</p>
+
+<pre class="prettyprint lang-java linenums"><code>public class IdeaController
+{
+
+  private final String field_query = 'Body, CommunityId, Id, CreatedBy.Name, CreatedDate, Title';
+  private final String vote_query = 'Select Id, ParentId, Type, CreatedById From Votes';
+  private final String comment_query = 'Select Id, CommentBody, CreatedBy.Name, CreatedDate, IdeaId From Comments Order By CreatedDate Desc';
+  private final ApexPages.StandardSetController ideaSetController;
+  
+  public String community_id { get; set; }
+  public String title { get; set; }
+  
+  public IdeaSetExtension(ApexPages.StandardSetController controller)
+  {
+    community_id = '09aE0000000PBPA';
+    title = 'My Community';
+    ideaSetController = (ApexPages.StandardSetController)controller;
+  }
+
+  public String getPopularIdeas()
+  {
+    List&lt;Idea&gt; ideas = Database.query('Select ' + field_query + ', (' + vote_query + '), (' + comment_query + ') From Idea Where CommunityId = \'' + community_id + '\' Order By VoteScore Desc Limit 3');
+    return JSON.serialize(ideas);
+  }
+
+  public String getLatestIdeas()
+  {
+    List&lt;Idea&gt; ideas = Database.query('Select ' + field_query + ', (' + vote_query + '), (' + comment_query + ') From Idea Where CommunityId = \'' + community_id + '\' Order By CreatedDate Desc Limit 3');
+    return JSON.serialize(ideas);
+  }
+
+  public String getLatestComments()
+  {
+    List&lt;IdeaComment&gt; comments = Database.query('Select CommentBody, CreatedBy.Name, CreatedDate, IdeaId From IdeaComment Where IdeaId In (Select Id From Idea Where CommunityId = \'' + community_id + '\') Order By CreatedDate Desc Limit 3');
+    return JSON.serialize(comments);
+  }
+}
+</code></pre>
+
+<h2 id="templates-and-html">Templates and HTML</h2>
+<p>I’m not going to explain the templates most of it is plain HTML and as you can see bindings are
+set up by using the data attribute <code>data-bind</code>. On the bottom of the template you can also see
+that templates within templates are possible, I used them for loops but it’s not mandatory.</p>
+
+<pre class="prettyprint lang-html linenums"><code>&lt;!-- Container --&gt;
+&lt;div class="container-fluid"&gt;
+  &lt;ul class="nav nav-tabs"&gt;
+    &lt;li class="active"&gt;&lt;a href="{!URLFOR($Page.ideas_home)}"&gt;My Community&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="pull-right"&gt;&lt;a href="#" data-bind="click: new_idea"&gt;&lt;i class="icon-edit"&gt;&lt;/i&gt; New Idea&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;div id="index"&gt;
+    &lt;div class="row-fluid"&gt;
+      &lt;div class="span12 well"&gt;
+        &lt;h2&gt;Popular Ideas&lt;/h2&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="template" data-bind="template: { name: 'idea-template', foreach: popular_ideas }"&gt;&lt;/div&gt;
+    &lt;div class="row-fluid"&gt;
+      &lt;div class="span12 well"&gt;
+        &lt;h2&gt;Latest Ideas&lt;/h2&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="template" data-bind="template: { name: 'idea-template', foreach: latest_ideas }"&gt;&lt;/div&gt;
+    &lt;div class="row-fluid"&gt;
+      &lt;div class="span12 well"&gt;
+        &lt;h2&gt;Latest Comments&lt;/h2&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="template" data-bind="template: { name: 'comment-template', foreach: latest_comments }"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id="show" class="hide" data-bind="with: idea"&gt;
+    &lt;div class="row-fluid"&gt;
+      &lt;div class="span12 well"&gt;
+        &lt;h2&gt;
+          &lt;span data-bind="text: title"&gt;&lt;/span&gt; 
+          &lt;small&gt;
+            &lt;span data-bind="text: author"&gt;&lt;/span&gt; on &lt;span data-bind="dateString: created"&gt;&lt;/span&gt;
+          &lt;/small&gt;
+          &lt;button class="btn pull-right" data-bind="click: index"&gt;
+            &lt;i class="icon-arrow-left"&gt;&lt;/i&gt; 
+            Back
+          &lt;/button&gt;
+        &lt;/h2&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="row-fluid"&gt;
+      &lt;div class="span12 padded"&gt;
+        &lt;span data-bind="html: body"&gt;&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="row-fluid"&gt;
+      &lt;div class="span12 well"&gt;
+        &lt;h3&gt;Comments&lt;/h3&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="row-fluid" data-bind="with: $parent.comment"&gt;
+      &lt;div class="span12"&gt;
+        &lt;form data-bind="submit: save"&gt;
+          &lt;div class="control-group padded"&gt;
+            &lt;label class="control-label" for="comment"&gt;Comment&lt;/label&gt;
+            &lt;div class="controls"&gt;
+              &lt;textarea id="comment" rows="5" class="span12" data-bind="value: body"&gt;&lt;/textarea&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class="form-actions"&gt;
+            &lt;button class="btn btn-success" data-bind="click: save"&gt;Create&lt;/button&gt;
+            &lt;button class="btn" data-bind="click: reset"&gt;Reset&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/form&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="template" data-bind="template: { name: 'comment-template', foreach: comments }"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="row-fluid template footer"&gt;
+    &lt;div class="span6"&gt;
+      &amp;copy; 2012 - Thomas Stachl, thomas (at) stachl (dot) me
+    &lt;/div&gt;
+    &lt;div class="span6"&gt;
+      &lt;button class="btn btn-mini pull-right" data-bind="click: add_to_page"&gt;&lt;i class="icon-bookmark"&gt;&lt;/i&gt; Add to Facebook Page&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Authorization Modal --&gt;
+&lt;div class="modal hide" id="not-logged-in" tabindex="-1" role="dialog" aria-labelledby="notLoggedIn" aria-hidden="true"&gt;
+  &lt;div class="modal-header"&gt;
+    &lt;button type="button" class="close" data-dismiss="modal" aria-hidden="true"&gt;×&lt;/button&gt;
+    &lt;h3 id="notLoggedIn"&gt;&lt;i class="icon-lock"&gt;&lt;/i&gt; Not Authorized ...&lt;/h3&gt;
+  &lt;/div&gt;
+  &lt;div class="modal-body"&gt;
+    &lt;p&gt;You are not logged in currently, therefore you can't create ideas, comments or promote and demote ideas.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="modal-footer"&gt;
+    &lt;button class="btn" data-dismiss="modal" aria-hidden="true"&gt;Close&lt;/button&gt;
+    &lt;button class="btn btn-success" data-dismiss="modal" aria-hidden="true" data-bind="click: login"&gt;Login&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- New Idea Modal --&gt;
+&lt;div class="modal hide" id="new-idea" tabindex="-1" role="dialog" aria-labelledby="newIdea" aria-hidden="true" data-bind="with: idea"&gt;
+  &lt;div class="modal-header"&gt;
+    &lt;button type="button" class="close" data-dismiss="modal" aria-hidden="true"&gt;×&lt;/button&gt;
+    &lt;h3 id="newIdea"&gt;New Idea&lt;/h3&gt;
+  &lt;/div&gt;
+  &lt;div class="modal-body"&gt;
+    &lt;form class="form-horizontal" data-bind="submit: save"&gt;
+      &lt;div class="control-group"&gt;
+        &lt;label class="control-label" for="title"&gt;Title&lt;/label&gt;
+        &lt;div class="controls"&gt;
+          &lt;input type="text" class="input-xlarge" id="title" data-bind="value: title" /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="control-group"&gt;
+        &lt;label class="control-label" for="description"&gt;Description&lt;/label&gt;
+        &lt;div class="controls"&gt;
+          &lt;textarea rows="8" class="input-xlarge" data-bind="value: body"&gt;&lt;/textarea&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+  &lt;div class="modal-footer"&gt;
+    &lt;button class="btn" data-dismiss="modal" aria-hidden="true"&gt;Cancel&lt;/button&gt;
+    &lt;button class="btn btn-success" data-dismiss="modal" aria-hidden="true" data-bind="click: save"&gt;Save&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Facebook Root --&gt;
+&lt;div id="fb-root"&gt;&lt;/div&gt;
+
+&lt;!-- Templates --&gt;
+&lt;script type="html/text" id="idea-template"&gt;
+  &lt;div class="row-fluid"&gt;
+    &lt;div class="span2"&gt;
+      &lt;div class="well points"&gt;
+        &lt;button class="btn btn-success btn-block btn-mini" data-bind="visible: can_vote, click: promote"&gt;&lt;i class="icon-thumbs-up icon-white"&gt;&lt;/i&gt; promote&lt;/button&gt;
+        &lt;h5&gt;&lt;span data-bind="text: score"&gt;&lt;/span&gt; &lt;small&gt;Punkte&lt;/small&gt;&lt;/h5&gt;
+        &lt;button class="btn btn-warning btn-block btn-mini" data-bind="visible: can_vote, click: demote"&gt;&lt;i class="icon-thumbs-down icon-white"&gt;&lt;/i&gt; demote&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="span10"&gt;
+      &lt;h3&gt;&lt;span data-bind="text: title"&gt;&lt;/span&gt; &lt;small&gt;&lt;span data-bind="text: author"&gt;&lt;/span&gt; on &lt;span data-bind="dateString: created"&gt;&lt;/span&gt;&lt;/small&gt;&lt;/h3&gt;
+      &lt;div data-bind="html: summary"&gt;&lt;/div&gt;
+      &lt;button class="btn btn-mini pull-right" data-bind="click: show"&gt;More ...&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/script&gt;
+&lt;script type="html/text" id="comment-template"&gt;
+  &lt;div class="row-fluid"&gt;
+    &lt;div class="span12 padded"&gt;
+      &lt;h3&gt;&lt;span data-bind="text: author"&gt;&lt;/span&gt; &lt;small&gt;on &lt;span data-bind="dateString: created"&gt;&lt;/span&gt;&lt;/small&gt;&lt;/h3&gt;
+      &lt;div data-bind="html: body"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/script&gt;
+</code></pre>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>That’s it for Knockout.js, Visualforce and Ideas for the moment. As you can see it’s really pretty
+simple to set up a very nice looking and interactive portal in a few hours. Now it’s on you! If you
+hav questions or comments post them and I’ll give my best to get back to you as soon as possible.</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Salesforce Site and Facebook Page Tab]]></title>
