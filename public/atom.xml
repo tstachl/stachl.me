@@ -3,7 +3,7 @@
   <title><![CDATA[Thomas Stachl]]></title>
   <link href="http://stachl.me/atom.xml" rel="self"/>
   <link href="http://stachl.me/"/>
-  <updated>2012-09-10T19:21:59+01:00</updated>
+  <updated>2012-09-12T16:48:32+01:00</updated>
   <id>http://stachl.me/</id>
   <author>
     <name><![CDATA[Thomas Stachl]]></name>
@@ -11,6 +11,70 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PageBlockTable Detail Row]]></title>
+    <link href="http://stachl.me/blog/2012/09/12/pageblocktable-detail-row.html"/>
+    <updated>2012-09-12T16:07:00+01:00</updated>
+    <id>http://stachl.me/blog/2012/09/12/pageblocktable-detail-row</id>
+    <content type="html"><![CDATA[<p>Have you ever been in the situation where you needed an additional row as detail view in a table? 
+Visualforce allows for a really simple solution to this problem and in this post I’ll try to give
+a high level view on how you can do that. Most of you probably will be satisfied if I tell you it’s
+done with the attribute <code>breakBefore</code> on the <code>apex:column</code>. So check out the documentation and get
+rolling on it: <a href="http://www.salesforce.com/us/developer/docs/pages/Content/pages_compref_column.htm">apex:column - Visualforce - Documentation</a></p>
+
+<p>For all of you who need a little bit more information here we go …
+<!--more--></p>
+
+<h2 id="the-visualforce-page">The Visualforce Page</h2>
+<p>I’ll just assume you’ll have a controller set up with all the information you need for your table
+so let’s jump right into how we would build the <code>pageBlockTable</code>. For this example I’ll use a
+standard controller so I don’t need to set up any additional data.</p>
+
+<pre class="prettyprint lang-html linenums"><code>&lt;apex:page standardController="Account" &gt;
+  &lt;apex:pageBlock title="My Contacts" &gt;
+    &lt;apex:pageBlockTable value="{!Account.Contacts}" var="Contact" &gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Contact Name&lt;/apex:facet&gt;
+        &lt;apex:outputLink value="/{!Contact.Id}" &gt;
+          &lt;apex:outputText value="{!Contact.FirstName} {!Contact.LastName}" /&gt;
+        &lt;/apex:outputLink&gt;
+      &lt;/apex:column&gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Title&lt;/apex:facet&gt;
+        &lt;apex:outputText value="{!Contact.Title}" /&gt;
+      &lt;/apex:column&gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Email&lt;/apex:facet&gt;
+        &lt;apex:outputText value="{!Contact.Email}" /&gt;
+      &lt;/apex:column&gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Phone&lt;/apex:facet&gt;
+        &lt;apex:outputText value="{!Contact.Phone}" /&gt;
+      &lt;/apex:column&gt;
+      &lt;!-- This is our detail view --&gt;
+      &lt;apex:column breakBefore="true" colspan="4" &gt;
+        &lt;apex:outputText value="{!Contact.MailingStreet}" /&gt;&lt;br /&gt;
+        &lt;apex:outputText value="{!Contact.MailingPostalCode}" /&gt;&amp;nbsp;&lt;apex:outputText value="{!Contact.MailingCity}" /&gt;&lt;br /&gt;
+        &lt;apex:outputText value="{!Contact.MailingState}" /&gt;&amp;nbsp;&lt;apex:outputText value="{!Contact.MailingCountry}" /&gt;
+      &lt;/apex:column&gt;
+    &lt;/apex:pageBlockTable&gt;
+  &lt;/apex:pageBlock&gt;
+&lt;/apex:page&gt;
+</code></pre>
+
+<p>Now sometimes you don’t have a detail view for each row, in these cases you can set the <code>rendered</code>
+attribute on the detail <code>apex:column</code>. You can also give it a class name and add some javascript
+to make the detail view collapsible.</p>
+
+<h2 id="screenshot">Screenshot</h2>
+<p><img src="http://stachl.me/images/pageblocktable_detailview.png" alt="The PageBlockTable with a detail row (yellow background)." title="A pageBlockTable with a detail view row." /></p>
+
+<p>If you want more information on that or a detailed tutorial just leave a comment and I’ll get back
+to you as soon as possible.</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ideas knocked out]]></title>

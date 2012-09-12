@@ -3,11 +3,11 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Salesforce Site and Facebook Page Tab - Thomas Stachl</title>
+  <title>PageBlockTable Detail Row - Thomas Stachl</title>
   <meta name="author" content="Thomas Stachl">
 
   
-  <meta name="description" content="Salesforce Site and Facebook Page Tab Sep 7th, 2012 salesforce facebook page tab sites force.com visualforce authentication login Every once in a &hellip;">
+  <meta name="description" content="PageBlockTable Detail Row Sep 12th, 2012 visualforce salesforce apex detailview table html markup Have you ever been in the situation where you &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@
   <meta property="fb:app_id" content="372711709452837" />
 
   
-  <link rel="canonical" href="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html">
+  <link rel="canonical" href="http://stachl.me/blog/2012/09/12/pageblocktable-detail-row.html">
   <link href="/images/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Thomas Stachl" type="application/atom+xml">
@@ -106,69 +106,85 @@
 
 <div class="heading-bar">
   
-    <h1 class="entry-title">Salesforce Site and Facebook Page Tab <small><time datetime="2012-09-07T12:22:00+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time></small></h1>
+    <h1 class="entry-title">PageBlockTable Detail Row <small><time datetime="2012-09-12T16:07:00+01:00" pubdate data-updated="true">Sep 12<span>th</span>, 2012</time></small></h1>
   
   <p class="meta">
     
     
     
-    <span class="label">salesforce</span>
-    
-    <span class="label">facebook</span>
-    
-    <span class="label">page tab</span>
-    
-    <span class="label">sites</span>
-    
-    <span class="label">force.com</span>
-    
     <span class="label">visualforce</span>
     
-    <span class="label">authentication</span>
+    <span class="label">salesforce</span>
     
-    <span class="label">login</span>
+    <span class="label">apex</span>
+    
+    <span class="label">detailview</span>
+    
+    <span class="label">table</span>
+    
+    <span class="label">html</span>
+    
+    <span class="label">markup</span>
     
   </p>
 </div>
   
 
-<div class="padded"><p>Every once in a while in my job I get asked to develop an application on the <a href="http://developer.force.com/">Force.com</a>
-Platform that can be included into a <a href="https://www.facebook.com/">Facebook</a> Page as a page tab. Now initially you’d
-think not a problem at all we’ll just create visualforce page and put it on a site, link the
-Facebook page tab app to the visualforce page and that’s it. We’ll you’re right it would be 
-really that simple if you don’t need the Facebook user to sign in and be an authenticated 
-portal user on the site.</p>
+<div class="padded"><p>Have you ever been in the situation where you needed an additional row as detail view in a table? 
+Visualforce allows for a really simple solution to this problem and in this post I’ll try to give
+a high level view on how you can do that. Most of you probably will be satisfied if I tell you it’s
+done with the attribute <code>breakBefore</code> on the <code>apex:column</code>. So check out the documentation and get
+rolling on it: <a href="http://www.salesforce.com/us/developer/docs/pages/Content/pages_compref_column.htm">apex:column - Visualforce - Documentation</a></p>
 
-<p>But authentication can’t be to terrible since Spring ‘12 <a href="http://www.salesforce.com/">Salesforce</a> even offers the so
-called <a href="http://blogs.developerforce.com/developer-relations/2012/01/social-single-sign-on-authentication-providers-in-spring-12.html">Social Single Sign On</a> which allows you to add Facebook as an authentication
-provider in your Salesforce Organization. Still it’s not the simplest of all tasks, with all
-those redirections, X-Frame and SSL policies and what not. So after the third time I tried
-to hack my way around I thought why not come up with a flow that works always and package
-it up for reuse.
+<p>For all of you who need a little bit more information here we go …
 <!--more--></p>
 
-<p>My solution involved a redirection flow built in Javascript and packaged as a visualforce
-Component. So here is what basically happens:</p>
+<h2 id="the-visualforce-page">The Visualforce Page</h2>
+<p>I’ll just assume you’ll have a controller set up with all the information you need for your table
+so let’s jump right into how we would build the <code>pageBlockTable</code>. For this example I’ll use a
+standard controller so I don’t need to set up any additional data.</p>
 
-<ul>
-  <li>John Doe finds himself on our Facebook Page</li>
-  <li>He clicks on the page tab</li>
-  <li>Depending on weather John surfs using SSL or not the page tab loads the visualforce page
-using the same protocol</li>
-  <li>Now the first thing this script does is to test if John Doe has a valid session</li>
-  <li>John Doe has never been on our visualforce page so he is redirected to the SSSO</li>
-  <li>The SSSO in turn will redirect John back to Facebook so he can authenticate and authorize
-our app</li>
-  <li>If he does he’ll then get redirected back to SSSO which will either create a new user
-or use an existing one for John</li>
-  <li>SSSO knows that the request came from a Force.com Site and redirects accordingly</li>
-  <li>At this stage the script will check if there is a return URL set and redirect there</li>
-</ul>
+<pre class="prettyprint lang-html linenums"><code>&lt;apex:page standardController="Account" &gt;
+  &lt;apex:pageBlock title="My Contacts" &gt;
+    &lt;apex:pageBlockTable value="{!Account.Contacts}" var="Contact" &gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Contact Name&lt;/apex:facet&gt;
+        &lt;apex:outputLink value="/{!Contact.Id}" &gt;
+          &lt;apex:outputText value="{!Contact.FirstName} {!Contact.LastName}" /&gt;
+        &lt;/apex:outputLink&gt;
+      &lt;/apex:column&gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Title&lt;/apex:facet&gt;
+        &lt;apex:outputText value="{!Contact.Title}" /&gt;
+      &lt;/apex:column&gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Email&lt;/apex:facet&gt;
+        &lt;apex:outputText value="{!Contact.Email}" /&gt;
+      &lt;/apex:column&gt;
+      &lt;apex:column &gt;
+        &lt;apex:facet name="header"&gt;Phone&lt;/apex:facet&gt;
+        &lt;apex:outputText value="{!Contact.Phone}" /&gt;
+      &lt;/apex:column&gt;
+      &lt;!-- This is our detail view --&gt;
+      &lt;apex:column breakBefore="true" colspan="4" &gt;
+        &lt;apex:outputText value="{!Contact.MailingStreet}" /&gt;&lt;br /&gt;
+        &lt;apex:outputText value="{!Contact.MailingPostalCode}" /&gt;&amp;nbsp;&lt;apex:outputText value="{!Contact.MailingCity}" /&gt;&lt;br /&gt;
+        &lt;apex:outputText value="{!Contact.MailingState}" /&gt;&amp;nbsp;&lt;apex:outputText value="{!Contact.MailingCountry}" /&gt;
+      &lt;/apex:column&gt;
+    &lt;/apex:pageBlockTable&gt;
+  &lt;/apex:pageBlock&gt;
+&lt;/apex:page&gt;
+</code></pre>
 
-<p>Now all you need to do is grab the code for the component on <a href="https://github.com/tstachl/fbookLoginRedirector">github.com/tstachl</a> and add it
-to your probably empty start/redirector page: <code>&lt;c:fbookLoginRedirector loginUrl="" retUrl="" /&gt;</code>
-There is an example visualforce page included and if you set this page as start page of a 
-site you should be good to go.</p>
+<p>Now sometimes you don’t have a detail view for each row, in these cases you can set the <code>rendered</code>
+attribute on the detail <code>apex:column</code>. You can also give it a class name and add some javascript
+to make the detail view collapsible.</p>
+
+<h2 id="screenshot">Screenshot</h2>
+<p><img src="/images/pageblocktable_detailview.png" alt="The PageBlockTable with a detail row (yellow background)." title="A pageBlockTable with a detail view row." /></p>
+
+<p>If you want more information on that or a detailed tutorial just leave a comment and I’ll get back
+to you as soon as possible.</p>
 
 </div>
 
@@ -191,12 +207,12 @@ site you should be good to go.</p>
   
 
 
-<time datetime="2012-09-07T12:22:00+01:00" pubdate data-updated="true">Sep 7<span>th</span>, 2012</time>
+<time datetime="2012-09-12T16:07:00+01:00" pubdate data-updated="true">Sep 12<span>th</span>, 2012</time>
         </p>
         
           <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stachl.me/blog/2012/09/12/pageblocktable-detail-row.html" data-via="thomasstachl" data-counturl="http://stachl.me/blog/2012/09/12/pageblocktable-detail-row.html" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -210,24 +226,18 @@ site you should be good to go.</p>
         <ul class="pager">
         
           <li class="previous">
-            <a href="/blog/2012/09/04/another-turning-point.html" title="Previous Post: Another turning point">
-              &laquo; Another turning point
+            <a href="/blog/2012/09/09/ideas-knocked-out.html" title="Previous Post: Ideas knocked out">
+              &laquo; Ideas knocked out
             </a>
           </li>
         
-        
-          <li class="next">
-            <a href="/blog/2012/09/09/ideas-knocked-out.html" title="Next Post: Ideas knocked out">
-              Ideas knocked out &raquo;
-            </a>
-          </li>
         
         </ul>
       </footer>
       
         <section class="padded">
           <h1>Leave a Comment</h1>
-          <div class="fb-comments" data-href="http://stachl.me/blog/2012/09/07/salesforce-site-and-facebook-page-tab.html" data-num-posts="5" data-colorscheme="light"></div>
+          <div class="fb-comments" data-href="http://stachl.me/blog/2012/09/12/pageblocktable-detail-row.html" data-num-posts="5" data-colorscheme="light"></div>
         </section>
       
     </article>
