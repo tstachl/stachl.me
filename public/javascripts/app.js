@@ -190,24 +190,37 @@
   Facebook = (function() {
 
     function Facebook(options) {
-      var sharing;
+      var sharing,
+        _this = this;
       if (options == null) {
         options = {};
       }
       if ((options.sharing != null) && options.sharing && !$('#facebook-jssdk').size()) {
         $('body').append('<div id="fb-root">');
         window.fbAsyncInit = function() {
-          return FB.init({
+          FB.init({
             appId: '372711709452837',
             status: true,
             cookie: true,
             xfbml: true
           });
+          return FB.Event.subscribe('comment.create', _this.subscribe);
         };
         sharing = $('<script>');
         sharing.attr('async', true).attr('src', '//connect.facebook.net/en_US/all.js#appId=372711709452837&xfbml=1').attr('id', 'facebook-jssdk').appendTo($('head'));
       }
     }
+
+    Facebook.prototype.subscribe = function() {
+      return $.ajax({
+        url: '/comment',
+        type: 'POST',
+        data: {
+          title: $('title').text().split('-')[0].trim(),
+          link: window.location.href
+        }
+      });
+    };
 
     return Facebook;
 
@@ -237,16 +250,16 @@
         options = {};
       }
       if (options.twitter != null) {
-        new Twitter(options.twitter);
+        this.twitter = new Twitter(options.twitter);
       }
       if (options.github != null) {
-        new Github(options.github);
+        this.github = new Github(options.github);
       }
       if (options.facebook != null) {
-        new Facebook(options.facebook);
+        this.facebook = new Facebook(options.facebook);
       }
       if (options.google != null) {
-        new Google(options.google);
+        this.google = new Google(options.google);
       }
       window.prettyPrint && prettyPrint();
       $('#archive-navbar').scrollspy({
