@@ -4,7 +4,7 @@
   <title><![CDATA[Tutorial | Thomas Stachl]]></title>
   <link href="http://stachl.me/categories/tutorial/atom.xml" rel="self"/>
   <link href="http://stachl.me/"/>
-  <updated>2012-09-12T16:48:32+01:00</updated>
+  <updated>2012-09-14T15:05:47+01:00</updated>
   <id>http://stachl.me/</id>
   <author>
     <name><![CDATA[Thomas Stachl]]></name>
@@ -12,6 +12,224 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sorting a pageBlockTable]]></title>
+    <link href="http://stachl.me/blog/2012/09/14/sorting-a-pageblocktable.html"/>
+    <updated>2012-09-14T14:07:00+01:00</updated>
+    <id>http://stachl.me/blog/2012/09/14/sorting-a-pageblocktable</id>
+    <content type="html"><![CDATA[<p>Continuing on the pageBlockTable one of the features I frequently need is the ability to sort a
+pageBlockTable. Now there must be millions of possible ways to go about that but today I’ll show
+you one of mine. It’s going to be completely standard conform using only Visualforce and Apex.</p>
+
+<p><img src="/images/pageblocktable_sorting.png" alt="The PageBlockTable with sorting functionality on each row." title="A pageBlockTable with sorting functionality." />
+<!--more--></p>
+
+<h2 id="apex-code-sorting-method">Apex Code, sorting method</h2>
+<p>Apex allows you to sort on <a href="http://www.salesforce.com/us/developer/docs/apexcode/Content/apex_methods_system_list.htm">lists</a> so that’s good to know before you start trying
+and implementing your custom sort functionality in apex. Lists are good if you have a list of
+strings or numbers but it won’t work well with a list of sobjects. That’s the reason I went with
+creating a list of all values in the field we want to sort and use this list as reference for my
+list of accounts.</p>
+
+<pre class="prettyprint lang-java linenums"><code>public class SortingController
+{
+  // The list of all our accounts has a custom getter to sort immediately
+  public List&lt;Account&gt; accounts { get {
+    return sortList(accounts);
+  } set; }
+  // The string containing the column to filter by
+  public String sortBy { get; set; }
+  // The string containing the direction (ASC, DESC)
+  public String sortDir { get; set; }
+
+  // In the constructor we just define an initial list of accounts
+  public SortingController()
+  {
+    accounts = [Select Id, Name, Site, BillingState, Phone, Type From Account];
+  }
+
+  public PageReference empty() { return null; }
+
+  // The sorting function works on all SObjects sorting on all fields
+  private List&lt;SObject&gt; sortList(List&lt;SObject&gt; cleanList)
+  {
+    // return the clean list if we don't have a sort field defined
+    if (sortBy == null) { return cleanList; }
+
+    // create an empty result List
+    List&lt;SObject&gt; resultList = new List&lt;SObject&gt;();
+    // and an object map which will be sorted
+    Map&lt;Object, List&lt;SObject&gt;&gt; objectMap = new Map&lt;Object, List&lt;SObject&gt;&gt;();
+
+    // now loop through the clean list and create the object map
+    for (SObject item : cleanList) {
+      if (objectMap.get(item.get(sortBy)) == null) {
+        objectMap.put(item.get(sortBy), new List&lt;SObject&gt;());
+      }
+      objectMap.get(item.get(sortBy)).add(item);
+    }
+
+    // get all the keys from the object map and sort them
+    List&lt;Object&gt; keys = new List&lt;Object&gt;(objectMap.keySet());
+    keys.sort();
+
+    // now create a result list by adding all objects from the object map
+    // in the sorted order
+    for(Object key : keys) {
+      resultList.addAll(objectMap.get(key));
+    }
+
+    // clear the clean list
+    cleanList.clear();
+    // depending on the direction add the items in the correct sorting to the clean list
+    if (sortDir == 'ASC') {
+      for (SObject item : resultList) {
+        cleanList.add(item);
+      }
+    } else {
+      for (Integer i = resultList.size()-1; i &gt;= 0; i--) {
+        cleanList.add(resultList[i]);
+      }
+    }
+  
+    // return the clean and now sorted list
+    return cleanList;
+  }
+}
+</code></pre>
+
+<p>As you can see it’s pretty straight forward and you can implement this function in any controller or
+standard controller extension as long as you use a list of SObjects and have the <code>sortBy</code> and
+<code>sortDir</code> defined you’ll be able to sort your list with this method.</p>
+
+<h2 id="visualforce-sorting-columns">Visualforce sorting columns</h2>
+<p>Moving on to the Visualforce part of this tutorial. It’s not complicated at all, all you want to do
+is using a link as header and, depending on which direction you sort, show the up or the down arrow.
+Now the column header would look like this:</p>
+
+<pre class="prettyprint lang-html linenums"><code>&lt;apex:facet name="header" &gt;
+  &lt;!-- we are using an empty page reference here --&gt;
+  &lt;apex:commandLink action="{!empty}"&gt;
+    &lt;!-- show the label of the columns field --&gt;
+    &lt;apex:outputText value="{!$ObjectType.Account.Fields.Name.Label}" /&gt;
+    &lt;!-- if we wort by this column in ascending direction show this image --&gt;
+    &lt;apex:outputText escape="false" rendered="{!sortBy=='Name'&amp;&amp;sortDir=='ASC'}"&gt;
+      &lt;img src="http://stachl.me/s.gif" alt="Sorted Ascending" class="sortAsc" title="Sorted Ascending" /&gt;
+    &lt;/apex:outputText&gt;
+    &lt;!-- and of course the other way around --&gt;
+    &lt;apex:outputText escape="false" rendered="{!sortBy=='Name'&amp;&amp;sortDir=='DESC'}"&gt;
+      &lt;img src="http://stachl.me/s.gif" alt="Sorted Descending" class="sortDesc" title="Sorted Descending" /&gt;
+    &lt;/apex:outputText&gt;
+    &lt;!-- define the two parameters with the value for the link --&gt;
+    &lt;apex:param value="Name" name="column" assignTo="{!sortBy}" /&gt;
+    &lt;apex:param value="{!IF(sortDir=='ASC'&amp;&amp;sortBy=='Name', 'DESC', 'ASC')}" name="direction" assignTo="{!sortDir}" /&gt;
+  &lt;/apex:commandLink&gt;
+&lt;/apex:facet&gt;
+</code></pre>
+
+<p>It’s definitely more to write as if you’d only show the name of the column but well once you have
+written it once you can copy paste it and only change the field name everywhere. But for all the
+lazy folks like me here is the complete page too.</p>
+
+<pre class="prettyprint lang-html linenums"><code>&lt;apex:page controller="SortingController" &gt;
+  &lt;apex:sectionHeader title="Accounts" subtitle="Sorting Example" /&gt;
+  &lt;apex:form &gt;
+	  &lt;apex:pageBlock title="My Accounts"&gt;
+	    &lt;apex:pageBlockTable value="{!accounts}" var="account" &gt;
+        &lt;apex:column &gt;
+          &lt;apex:facet name="header" &gt;
+            &lt;apex:commandLink action="{!empty}"&gt;
+              &lt;apex:outputText value="{!$ObjectType.Account.Fields.Name.Label}" /&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Name'&amp;&amp;sortDir=='ASC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Ascending" class="sortAsc" title="Sorted Ascending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Name'&amp;&amp;sortDir=='DESC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Descending" class="sortDesc" title="Sorted Descending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:param value="Name" name="column" assignTo="{!sortBy}" /&gt;
+              &lt;apex:param value="{!IF(sortDir=='ASC'&amp;&amp;sortBy=='Name', 'DESC', 'ASC')}" name="direction" assignTo="{!sortDir}" /&gt;
+            &lt;/apex:commandLink&gt;
+          &lt;/apex:facet&gt;
+          &lt;apex:outputLink value="/{!account.Id}" &gt;
+            &lt;apex:outputText value="{!account.Name}" /&gt;
+          &lt;/apex:outputLink&gt;
+        &lt;/apex:column&gt;
+        &lt;apex:column &gt;
+          &lt;apex:facet name="header" &gt;
+            &lt;apex:commandLink action="{!empty}"&gt;
+              &lt;apex:outputText value="{!$ObjectType.Account.Fields.Site.Label}" /&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Site'&amp;&amp;sortDir=='ASC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Ascending" class="sortAsc" title="Sorted Ascending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Site'&amp;&amp;sortDir=='DESC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Descending" class="sortDesc" title="Sorted Descending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:param value="Site" name="column" assignTo="{!sortBy}" /&gt;
+              &lt;apex:param value="{!IF(sortDir=='ASC'&amp;&amp;sortBy=='Site', 'DESC', 'ASC')}" name="direction" assignTo="{!sortDir}" /&gt;
+            &lt;/apex:commandLink&gt;
+          &lt;/apex:facet&gt;
+          &lt;apex:outputText value="{!account.Site}" /&gt;
+        &lt;/apex:column&gt;
+        &lt;apex:column &gt;
+          &lt;apex:facet name="header" &gt;
+            &lt;apex:commandLink action="{!empty}"&gt;
+              &lt;apex:outputText value="{!$ObjectType.Account.Fields.BillingState.Label}" /&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='BillingState'&amp;&amp;sortDir=='ASC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Ascending" class="sortAsc" title="Sorted Ascending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='BillingState'&amp;&amp;sortDir=='DESC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Descending" class="sortDesc" title="Sorted Descending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:param value="BillingState" name="column" assignTo="{!sortBy}" /&gt;
+              &lt;apex:param value="{!IF(sortDir=='ASC'&amp;&amp;sortBy=='BillingState', 'DESC', 'ASC')}" name="direction" assignTo="{!sortDir}" /&gt;
+            &lt;/apex:commandLink&gt;
+          &lt;/apex:facet&gt;
+          &lt;apex:outputText value="{!account.BillingState}" /&gt;
+        &lt;/apex:column&gt;
+        &lt;apex:column &gt;
+          &lt;apex:facet name="header" &gt;
+            &lt;apex:commandLink action="{!empty}"&gt;
+              &lt;apex:outputText value="{!$ObjectType.Account.Fields.Phone.Label}" /&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Phone'&amp;&amp;sortDir=='ASC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Ascending" class="sortAsc" title="Sorted Ascending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Phone'&amp;&amp;sortDir=='DESC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Descending" class="sortDesc" title="Sorted Descending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:param value="Phone" name="column" assignTo="{!sortBy}" /&gt;
+              &lt;apex:param value="{!IF(sortDir=='ASC'&amp;&amp;sortBy=='Phone', 'DESC', 'ASC')}" name="direction" assignTo="{!sortDir}" /&gt;
+            &lt;/apex:commandLink&gt;
+          &lt;/apex:facet&gt;
+          &lt;apex:outputText value="{!account.Phone}" /&gt;
+        &lt;/apex:column&gt;
+        &lt;apex:column &gt;
+          &lt;apex:facet name="header" &gt;
+            &lt;apex:commandLink action="{!empty}"&gt;
+              &lt;apex:outputText value="{!$ObjectType.Account.Fields.Type.Label}" /&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Type'&amp;&amp;sortDir=='ASC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Ascending" class="sortAsc" title="Sorted Ascending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:outputText escape="false" rendered="{!sortBy=='Type'&amp;&amp;sortDir=='DESC'}"&gt;
+                &lt;img src="http://stachl.me/s.gif" alt="Sorted Descending" class="sortDesc" title="Sorted Descending" /&gt;
+              &lt;/apex:outputText&gt;
+              &lt;apex:param value="Type" name="column" assignTo="{!sortBy}" /&gt;
+              &lt;apex:param value="{!IF(sortDir=='ASC'&amp;&amp;sortBy=='Type', 'DESC', 'ASC')}" name="direction" assignTo="{!sortDir}" /&gt;
+            &lt;/apex:commandLink&gt;
+          &lt;/apex:facet&gt;
+          &lt;apex:outputText value="{!account.Type}" /&gt;
+        &lt;/apex:column&gt;
+	    &lt;/apex:pageBlockTable&gt;
+	  &lt;/apex:pageBlock&gt;
+  &lt;/apex:form&gt;
+&lt;/apex:page&gt;
+</code></pre>
+
+<p>Now as you see it’s really simple to implement sorting on columns in a <code>pageBlockTable</code>. If you have
+questions or ideas, you know the drill.</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ideas knocked out]]></title>
